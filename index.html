@@ -1,39 +1,123 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>جناوي</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #0d0d0d;
-      color: #ffffff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
-      background: linear-gradient(145deg, #0d0d0d, #1a1a1a);
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>جنى - تطبيق عصري</title>
 
+<style>
+  /* خلفية داكنة منقطة */
+  body {
+    margin: 0;
+    background-color: #121212;
+    background-image: radial-gradient(circle, #2a2a2a 1px, transparent 1px);
+    background-size: 20px 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    padding: 20px;
+  }
+
+  img.logo {
+    width: 128px;
+    height: 128px;
+    border-radius: 30%;
+    box-shadow: 0 0 15px #8a2be2;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: 3rem;
+    margin-bottom: 0.2em;
+    color: #8a2be2;
+    text-shadow: 0 0 10px #8a2be2;
+  }
+
+  p.description {
+    font-size: 1.2rem;
+    max-width: 280px;
+    margin: 0 auto 30px auto;
+    color: #bbb;
+  }
+
+  .countdown {
+    font-size: 2rem;
+    background: #1f1f1f;
+    padding: 15px 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px #8a2be2;
+    letter-spacing: 1.3px;
+    user-select: none;
+    width: fit-content;
+    margin: 0 auto;
+  }
+
+  .countdown span {
+    display: inline-block;
+    min-width: 60px;
+  }
+
+  /* استايلات متجاوبة */
+  @media (max-width: 400px) {
     h1 {
-      font-size: 2.5rem;
-      background: linear-gradient(90deg, #6a5acd, #00bfff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: fadeIn 2s ease-in-out;
+      font-size: 2.2rem;
     }
+    .countdown {
+      font-size: 1.5rem;
+      padding: 12px 20px;
+    }
+  }
+</style>
 
-    @keyframes fadeIn {
-      0% { opacity: 0; transform: scale(0.9); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-  </style>
 </head>
 <body>
-  <h1>جناوي احببك</h1>
+
+<img src="https://i.ibb.co/Z1WwNsQR/image.png" alt="لوقو جنى" class="logo" />
+
+<h1>جنى</h1>
+<p class="description">مرحبًا بك في تطبيق جنى، تجربة أنيقة وبسيطة تجمعك مع كل جديد.</p>
+
+<div class="countdown" aria-label="العد التنازلي لتدشين التطبيق">
+  <span id="days">--</span> أيام
+  <span id="hours">--</span> ساعات
+  <span id="minutes">--</span> دقائق
+  <span id="seconds">--</span> ثواني
+</div>
+
+<script>
+  // تعيين تاريخ الحدث (مثلاً بعد 10 أيام من الآن)
+  const targetDate = new Date();
+  targetDate.setDate(targetDate.getDate() + 10);
+
+  function updateCountdown() {
+    const now = new Date();
+    const diff = targetDate - now;
+
+    if (diff <= 0) {
+      document.querySelector('.countdown').textContent = "الحدث بدأ! 🎉";
+      clearInterval(timer);
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    document.getElementById('days').textContent = days.toString().padStart(2, '0');
+    document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+    document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+    document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+  }
+
+  updateCountdown();
+  const timer = setInterval(updateCountdown, 1000);
+</script>
+
 </body>
 </html>
