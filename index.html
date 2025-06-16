@@ -187,6 +187,16 @@
   .dev-section h3 {
     color: #ff9800;
   }
+  
+  /* قسم إدارة قاعدة البيانات */
+  .db-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #444;
+  }
+  .db-section h3 {
+    color: #4caf50;
+  }
 </style>
 
 </head>
@@ -267,6 +277,15 @@
     <button id="dev-add-money-btn">إضافة 20,000 ر.س</button>
   </div>
 
+  <!-- قسم إدارة قاعدة البيانات -->
+  <div class="db-section">
+    <h3>إدارة قاعدة البيانات</h3>
+    <div class="msg" id="db-msg"></div>
+    <button id="export-db-btn">تصدير قاعدة البيانات</button>
+    <button id="import-db-btn" style="margin-top:10px;">استيراد قاعدة البيانات</button>
+    <input type="file" id="db-file-input" accept=".db,.sqlite,.sqlite3" style="display:none;" />
+  </div>
+
   <button id="logout-btn" style="background:#cc4444; margin-top: 15px;">تسجيل خروج</button>
 </div>
 
@@ -283,6 +302,8 @@
 
   let db;
   let currentUser = null;
+  let dbFileHandle = null;
+  let isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
   // إشعار داخلي بدل الإشعارات غير المدعومة
   const internalNotify = document.getElementById('internal-notify');
@@ -329,6 +350,12 @@
   const devAddMoneyBtn = document.getElementById('dev-add-money-btn');
   const devMsg = document.getElementById('dev-msg');
 
+  // قسم إدارة قاعدة البيانات
+  const exportDbBtn = document.getElementById('export-db-btn');
+  const importDbBtn = document.getElementById('import-db-btn');
+  const dbFileInput = document.getElementById('db-file-input');
+  const dbMsg = document.getElementById('db-msg');
+
   // توليد رقم حساب عشوائي مؤلف من 10 أرقام (رقم الحساب يجب أن يكون فريد)
   async function generateAccountNumber() {
     let num;
@@ -355,12 +382,28 @@
         locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
       });
       
-      // محاولة تحميل قاعدة البيانات المحفوظة
+      // محاولة تحميل قاعدة البيانات من localStorage (للسفاري والمتصفحات التي لا تدعم File System API)
       let savedDb = localStorage.getItem(DB_NAME);
       let dbData;
       
       if (savedDb) {
         dbData = new Uint8Array(JSON.parse(savedDb)).buffer;
+      } else if (!isSafari && 'showOpenFilePicker' in window) {
+        // محاولة تحميل قاعدة البيانات من الملف (للمتصفحات الحديثة)
+        try {
+          [dbFileHandle] = await window.showOpenFilePicker({
+            types: [{
+              description: 'قاعدة بيانات SQLite',
+              accept: {'application/vnd.sqlite3': ['.db']}
+            }],
+            multiple: false
+          });
+          const file = await dbFileHandle.getFile();
+          const arrayBuffer = await file.arrayBuffer();
+          dbData = new Uint8Array(arrayBuffer).buffer;
+        } catch (error) {
+          console.log('سيتم إنشاء قاعدة بيانات جديدة');
+        }
       }
       
       // إنشاء أو تحميل قاعدة البيانات
@@ -386,8 +429,8 @@
         );
       `);
       
-      // حفظ قاعدة البيانات في localStorage
-      saveDB();
+      // حفظ قاعدة البيانات
+      await saveDB();
       
       console.log('تم تهيئة قاعدة البيانات بنجاح');
       return true;
@@ -398,10 +441,89 @@
     }
   }
 
-  // حفظ قاعدة البيانات في localStorage
-  function saveDB() {
+  // حفظ قاعدة البيانات
+  async function saveDB() {
+    if (!db) return;
+    
     const dbData = db.export();
-    localStorage.setItem(DB_NAME, JSON.stringify(Array.from(dbData)));
+    
+    if (!isSafari && dbFileHandle) {
+      // حفظ في ملف (للمتصفحات الحديثة)
+      try {
+        const writable = await dbFileHandle.createWritable();
+        await writable.write(dbData);
+        await writable.close();
+        console.log('تم حفظ قاعدة البيانات في الملف');
+      } catch (error) {
+        console.error('خطأ في حفظ قاعدة البيانات في الملف:', error);
+        // في حالة الخطأ، نلجأ لحفظ في localStorage
+        localStorage.setItem(DB_NAME, JSON.stringify(Array.from(dbData)));
+      }
+    } else {
+      // حفظ في localStorage (للسفاري والمتصفحات القديمة)
+      localStorage.setItem(DB_NAME, JSON.stringify(Array.from(dbData)));
+      console.log('تم حفظ قاعدة البيانات في localStorage');
+    }
+  }
+
+  // تصدير قاعدة البيانات كملف
+  async function exportDB() {
+    if (!db) return;
+    
+    try {
+      const dbData = db.export();
+      const blob = new Blob([dbData], { type: 'application/vnd.sqlite3' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = DB_NAME;
+      a.click();
+      
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 100);
+      
+      dbMsg.classList.add('success');
+      dbMsg.textContent = 'تم تصدير قاعدة البيانات بنجاح';
+      setTimeout(() => { dbMsg.textContent = ''; dbMsg.classList.remove('success'); }, 3000);
+    } catch (error) {
+      console.error('خطأ في تصدير قاعدة البيانات:', error);
+      dbMsg.textContent = 'حدث خطأ أثناء تصدير قاعدة البيانات';
+    }
+  }
+
+  // استيراد قاعدة البيانات من ملف
+  async function importDB(file) {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const SQL = await initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+      });
+      
+      // إنشاء قاعدة بيانات جديدة من الملف المستورد
+      const newDb = new SQL.Database(new Uint8Array(arrayBuffer));
+      
+      // التحقق من أن الملف يحتوي على الجداول المطلوبة
+      try {
+        newDb.exec('SELECT 1 FROM users LIMIT 1');
+        newDb.exec('SELECT 1 FROM transactions LIMIT 1');
+      } catch (e) {
+        throw new Error('ملف قاعدة البيانات غير صالح');
+      }
+      
+      // استبدال قاعدة البيانات الحالية
+      db = newDb;
+      
+      // حفظ قاعدة البيانات الجديدة
+      await saveDB();
+      
+      // إعادة تحميل الصفحة لتطبيق التغييرات
+      location.reload();
+    } catch (error) {
+      console.error('خطأ في استيراد قاعدة البيانات:', error);
+      dbMsg.textContent = 'ملف قاعدة البيانات غير صالح أو تالف';
+    }
   }
 
   // جلب مستخدم حسب اسم المستخدم (غير حساس لحالة الأحرف)
@@ -541,7 +663,7 @@
         [username, password, newAccountNumber]
       );
       
-      saveDB();
+      await saveDB();
       
       registerMsg.classList.add('success');
       registerMsg.textContent = `تم إنشاء الحساب بنجاح! رقم حسابك: ${newAccountNumber}`;
@@ -608,6 +730,7 @@
     transferMsg.textContent = '';
     billMsg.textContent = '';
     devMsg.textContent = '';
+    dbMsg.textContent = '';
     updateDashboard();
   }
 
@@ -673,7 +796,7 @@
         [targetUser[1], now, 'استلام تحويل', `من حساب ${currentUser[3]}`, amount]
       );
       
-      saveDB();
+      await saveDB();
       
       // تحديث بيانات المستخدم الحالي
       currentUser = (await db.exec('SELECT * FROM users WHERE id = ?', [currentUser[0]]))[0].values[0];
@@ -722,7 +845,7 @@
         [currentUser[1], now, 'سداد فاتورة', `فاتورة رقم ${billNumber}`, -billAmount]
       );
       
-      saveDB();
+      await saveDB();
       
       // تحديث بيانات المستخدم الحالي
       currentUser = (await db.exec('SELECT * FROM users WHERE id = ?', [currentUser[0]]))[0].values[0];
@@ -762,7 +885,7 @@
         [currentUser[1], now, 'إضافة أموال', 'إضافة أموال بواسطة كود المطور', DEV_BONUS_AMOUNT]
       );
       
-      saveDB();
+      await saveDB();
       
       // تحديث بيانات المستخدم الحالي
       currentUser = (await db.exec('SELECT * FROM users WHERE id = ?', [currentUser[0]]))[0].values[0];
@@ -781,6 +904,21 @@
     } catch (error) {
       console.error('خطأ في إضافة الأموال:', error);
       devMsg.textContent = 'حدث خطأ أثناء إضافة الأموال.';
+    }
+  });
+
+  // تصدير قاعدة البيانات
+  exportDbBtn.addEventListener('click', exportDB);
+
+  // استيراد قاعدة البيانات
+  importDbBtn.addEventListener('click', () => {
+    dbFileInput.click();
+  });
+
+  dbFileInput.addEventListener('change', async (e) => {
+    if (e.target.files.length > 0) {
+      await importDB(e.target.files[0]);
+      e.target.value = ''; // إعادة تعيين حقل الإدخال
     }
   });
 
