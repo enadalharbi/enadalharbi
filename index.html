@@ -3,218 +3,639 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>حاسبة جنى</title>
-
+<title>مصرف جنى - البنك الوهمي</title>
+<link rel="icon" href="https://i.ibb.co/Z1WwNsQR/image.png" />
 <style>
-  /* خلفية داكنة منقطة */
+  @import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
+
+  * {
+    box-sizing: border-box;
+  }
+
   body {
     margin: 0;
-    background-color: #121212;
-    background-image: radial-gradient(circle, #2a2a2a 1px, transparent 1px);
-    background-size: 20px 20px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #eee;
+    background: #121212;
+    background-image: radial-gradient(circle, #222 1px, transparent 1px);
+    background-size: 25px 25px;
+    font-family: 'Cairo', sans-serif;
+    color: #ddd;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
-    padding: 40px 20px 60px;
-    text-align: center;
-  }
-
-  img.logo {
-    width: 128px;
-    height: 128px;
-    border-radius: 30%;
-    box-shadow: 0 0 15px #8a2be2;
-    margin-bottom: 20px;
-  }
-
-  h1 {
-    font-size: 3rem;
-    margin-bottom: 0.3em;
-    color: #8a2be2;
-    text-shadow: 0 0 10px #8a2be2;
-  }
-
-  p.description {
-    font-size: 1.2rem;
-    max-width: 320px;
-    margin: 0 auto 30px auto;
-    color: #bbb;
-  }
-
-  .calculator {
-    background: #1f1f1f;
-    padding: 30px 40px 40px;
-    border-radius: 25px;
-    box-shadow: 0 0 30px #8a2be2;
-    width: 320px;
-    max-width: 90vw;
-  }
-
-  input[type="number"] {
-    width: 100%;
-    padding: 15px 20px;
-    font-size: 1.3rem;
-    border-radius: 15px;
-    border: none;
-    margin-bottom: 20px;
-    background-color: #2a2a2a;
-    color: #eee;
-    box-shadow: inset 0 0 8px #4b0082;
-    transition: background-color 0.3s ease;
-  }
-
-  input[type="number"]:focus {
-    outline: none;
-    background-color: #3b3b3b;
-  }
-
-  select {
-    width: 100%;
-    padding: 15px 20px;
-    font-size: 1.3rem;
-    border-radius: 15px;
-    border: none;
-    margin-bottom: 30px;
-    background-color: #2a2a2a;
-    color: #eee;
-    box-shadow: inset 0 0 8px #4b0082;
-    cursor: pointer;
-  }
-
-  button.calculate-btn {
-    width: 100%;
-    background-color: #8a2be2;
-    color: #eee;
-    font-size: 1.5rem;
-    padding: 15px 0;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    box-shadow: 0 0 15px #8a2be2;
-    transition: background-color 0.3s ease;
-  }
-
-  button.calculate-btn:hover {
-    background-color: #7a23d9;
-  }
-
-  .result {
-    margin-top: 30px;
-    font-size: 1.6rem;
-    color: #d8bfff;
-    min-height: 36px;
-    font-weight: 600;
+    padding: 30px 20px 50px;
     user-select: none;
   }
 
-  /* استايلات متجاوبة */
+  img.logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 25%;
+    box-shadow: 0 0 20px #8a2be2;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-size: 2.8rem;
+    color: #8a2be2;
+    margin-bottom: 0.2em;
+    text-shadow: 0 0 15px #8a2be2;
+  }
+
+  .container {
+    background: #1d1d1d;
+    box-shadow: 0 0 40px #6a33cc88;
+    border-radius: 25px;
+    width: 360px;
+    max-width: 95vw;
+    padding: 30px 35px 40px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #b0a7ff;
+    user-select: text;
+  }
+
+  input[type=text], input[type=password], input[type=number], select {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 15px;
+    border: none;
+    background: #2a2a2a;
+    color: #eee;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    box-shadow: inset 0 0 10px #6b3ed4;
+    transition: background-color 0.3s ease;
+  }
+  input[type=text]:focus, input[type=password]:focus, input[type=number]:focus, select:focus {
+    outline: none;
+    background-color: #3a3a3a;
+  }
+
+  button {
+    width: 100%;
+    background-color: #8a2be2;
+    color: #eee;
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding: 15px 0;
+    border: none;
+    border-radius: 25px;
+    box-shadow: 0 0 15px #8a2be2;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    user-select: none;
+  }
+
+  button:hover:not(:disabled) {
+    background-color: #7320ce;
+  }
+
+  button:disabled {
+    background-color: #4e3a6a;
+    cursor: default;
+  }
+
+  .msg {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+    min-height: 22px;
+    color: #f7a5f7;
+  }
+
+  .nav-links {
+    margin-top: 15px;
+    text-align: center;
+  }
+
+  .nav-links span {
+    color: #888;
+  }
+
+  .nav-links button {
+    all: unset;
+    cursor: pointer;
+    color: #8a2be2;
+    font-weight: 700;
+    margin-right: 6px;
+    user-select: none;
+  }
+  .nav-links button:hover {
+    text-decoration: underline;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .dashboard {
+    color: #eee;
+    font-size: 1rem;
+    user-select: text;
+  }
+
+  .dashboard h2 {
+    margin-top: 0;
+    color: #8a2be2;
+    text-shadow: 0 0 10px #8a2be2;
+    margin-bottom: 15px;
+  }
+
+  .info-row {
+    margin-bottom: 18px;
+  }
+  .info-label {
+    font-weight: 600;
+    color: #b5aaff;
+  }
+  .info-value {
+    float: left;
+    font-weight: 700;
+  }
+
+  .section-title {
+    color: #b3aaff;
+    font-weight: 700;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #6e5abb;
+    padding-bottom: 5px;
+  }
+
+  .form-inline {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .form-inline input[type=text], .form-inline input[type=number] {
+    flex: 1;
+    margin-bottom: 0;
+  }
+  .form-inline button {
+    flex: 0 0 120px;
+  }
+
+  .footer {
+    margin-top: 40px;
+    font-size: 0.8rem;
+    color: #666;
+    user-select: none;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    background: #222;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #7a2be2aa;
+    border-radius: 4px;
+  }
+
+  /* Responsive */
   @media (max-width: 400px) {
-    h1 {
-      font-size: 2.2rem;
-    }
-
-    .calculator {
-      padding: 20px 25px 30px;
+    .container {
       width: 95vw;
+      padding: 20px 20px 30px;
     }
 
-    input[type="number"], select {
-      font-size: 1.1rem;
-      padding: 12px 15px;
+    h1 {
+      font-size: 2rem;
     }
 
-    button.calculate-btn {
-      font-size: 1.3rem;
+    button {
+      font-size: 1.2rem;
       padding: 12px 0;
-    }
-
-    .result {
-      font-size: 1.3rem;
     }
   }
 </style>
-
 </head>
 <body>
 
-<img src="https://i.ibb.co/Z1WwNsQR/image.png" alt="لوقو حاسبة جنى" class="logo" />
+<img src="https://i.ibb.co/Z1WwNsQR/image.png" alt="لوقو مصرف جنى" class="logo" />
+<h1>مصرف جنى</h1>
 
-<h1>حاسبة جنى</h1>
-<p class="description">حاسبة بسيطة وأنيقة لعمليات الجمع والطرح والضرب والقسمة.</p>
+<div class="container" id="auth-container">
+  <div id="message" class="msg"></div>
 
-<div class="calculator" role="form" aria-label="حاسبة العمليات الحسابية">
+  <div id="login-form">
+    <label for="login-username">اسم المستخدم</label>
+    <input type="text" id="login-username" autocomplete="username" placeholder="أدخل اسم المستخدم" />
+    <label for="login-password">كلمة المرور</label>
+    <input type="password" id="login-password" autocomplete="current-password" placeholder="أدخل كلمة المرور" />
+    <button id="login-btn">تسجيل الدخول</button>
+    <div class="nav-links">
+      <span>ليس لديك حساب؟</span>
+      <button id="show-register">إنشاء حساب جديد</button>
+    </div>
+  </div>
 
-  <input type="number" id="num1" placeholder="العدد الأول" aria-label="العدد الأول" required />
-
-  <input type="number" id="num2" placeholder="العدد الثاني" aria-label="العدد الثاني" required />
-
-  <select id="operation" aria-label="اختيار العملية الحسابية">
-    <option value="add">جمع +</option>
-    <option value="subtract">طرح -</option>
-    <option value="multiply">ضرب ×</option>
-    <option value="divide">قسمة ÷</option>
-  </select>
-
-  <button class="calculate-btn" id="calcBtn" aria-describedby="result">احسب</button>
-
-  <div class="result" id="result" aria-live="polite" aria-atomic="true"></div>
-
+  <div id="register-form" class="hidden">
+    <label for="register-username">اسم المستخدم</label>
+    <input type="text" id="register-username" autocomplete="username" placeholder="اختر اسم مستخدم" />
+    <label for="register-password">كلمة المرور</label>
+    <input type="password" id="register-password" autocomplete="new-password" placeholder="اختر كلمة مرور" />
+    <button id="register-btn">إنشاء الحساب</button>
+    <div class="nav-links">
+      <span>هل لديك حساب؟</span>
+      <button id="show-login">العودة لتسجيل الدخول</button>
+    </div>
+  </div>
 </div>
 
+<div class="container hidden" id="dashboard-container" aria-live="polite" aria-atomic="true">
+  <h2>لوحة التحكم</h2>
+
+  <div class="info-row"><span class="info-label">اسم المستخدم:</span> <span id="dash-username" class="info-value"></span></div>
+  <div class="info-row"><span class="info-label">رقم الحساب:</span> <span id="dash-account" class="info-value"></span></div>
+  <div class="info-row"><span class="info-label">الرصيد الحالي:</span> <span id="dash-balance" class="info-value"></span> ر.س</div>
+
+  <section aria-label="إضافة أموال" class="section-add-funds">
+    <div class="section-title">إضافة أموال (كود المطور)</div>
+    <div class="form-inline">
+      <input type="text" id="add-funds-code" placeholder="أدخل كود المطور" aria-label="كود المطور لإضافة أموال" />
+      <button id="add-funds-btn">إضافة</button>
+    </div>
+    <div id="add-funds-msg" class="msg"></div>
+  </section>
+
+  <section aria-label="التحويلات" style="margin-top: 25px;">
+    <div class="section-title">تحويل أموال</div>
+    <div class="form-inline">
+      <input type="text" id="transfer-to" placeholder="اسم مستخدم المستلم" aria-label="اسم مستخدم المستلم" />
+      <input type="number" id="transfer-amount" placeholder="المبلغ" aria-label="مبلغ التحويل" min="1" />
+      <button id="transfer-btn">تحويل</button>
+    </div>
+    <div id="transfer-msg" class="msg"></div>
+  </section>
+
+  <section aria-label="سداد الفواتير" style="margin-top: 25px;">
+    <div class="section-title">سداد فاتورة</div>
+    <div class="form-inline">
+      <input type="text" id="bill-number" placeholder="رقم الفاتورة" aria-label="رقم الفاتورة" />
+      <button id="pay-bill-btn">سداد</button>
+    </div>
+    <div id="pay-bill-msg" class="msg"></div>
+  </section>
+
+  <button id="logout-btn" style="margin-top:30px; background-color: #641dbb;">تسجيل الخروج</button>
+</div>
+
+<div class="footer">© 2025 مصرف جنى - تطوير بواسطة ChatGPT</div>
+
 <script>
-  const num1Input = document.getElementById('num1');
-  const num2Input = document.getElementById('num2');
-  const operationSelect = document.getElementById('operation');
-  const resultDiv = document.getElementById('result');
-  const calcBtn = document.getElementById('calcBtn');
+(() => {
+  // ----------- متغيرات أساسية --------------
+  const devCode = "A11B11B11B11B11";
 
-  function calculate() {
-    const val1 = parseFloat(num1Input.value);
-    const val2 = parseFloat(num2Input.value);
-    const op = operationSelect.value;
+  // عناصر DOM
+  const authContainer = document.getElementById('auth-container');
+  const loginForm = document.getElementById('login-form');
+  const registerForm = document.getElementById('register-form');
+  const messageDiv = document.getElementById('message');
 
-    if (isNaN(val1) || isNaN(val2)) {
-      resultDiv.textContent = "الرجاء إدخال أرقام صحيحة في كلا الحقلين.";
+  const loginUsername = document.getElementById('login-username');
+  const loginPassword = document.getElementById('login-password');
+  const loginBtn = document.getElementById('login-btn');
+
+  const registerUsername = document.getElementById('register-username');
+  const registerPassword = document.getElementById('register-password');
+  const registerBtn = document.getElementById('register-btn');
+
+  const dashboardContainer = document.getElementById('dashboard-container');
+  const dashUsername = document.getElementById('dash-username');
+  const dashAccount = document.getElementById('dash-account');
+  const dashBalance = document.getElementById('dash-balance');
+
+  const addFundsCodeInput = document.getElementById('add-funds-code');
+  const addFundsBtn = document.getElementById('add-funds-btn');
+  const addFundsMsg = document.getElementById('add-funds-msg');
+
+  const transferToInput = document.getElementById('transfer-to');
+  const transferAmountInput = document.getElementById('transfer-amount');
+  const transferBtn = document.getElementById('transfer-btn');
+  const transferMsg = document.getElementById('transfer-msg');
+
+  const billNumberInput = document.getElementById('bill-number');
+  const payBillBtn = document.getElementById('pay-bill-btn');
+  const payBillMsg = document.getElementById('pay-bill-msg');
+
+  const logoutBtn = document.getElementById('logout-btn');
+
+  // قاعدة بيانات وهمية في localStorage تحت مفتاح "mj_bank_users"
+  // بيانات المستخدم شكلها: { username, password, accountNumber, balance, notifications: [] }
+  function getUsers() {
+    try {
+      return JSON.parse(localStorage.getItem('mj_bank_users')) || [];
+    } catch {
+      return [];
+    }
+  }
+  function saveUsers(users) {
+    localStorage.setItem('mj_bank_users', JSON.stringify(users));
+  }
+
+  // جلب مستخدم حسب اسم المستخدم
+  function getUser(username) {
+    return getUsers().find(u => u.username.toLowerCase() === username.toLowerCase());
+  }
+
+  // حفظ مستخدم بعد تعديل بياناته
+  function saveUser(user) {
+    const users = getUsers();
+    const idx = users.findIndex(u => u.username.toLowerCase() === user.username.toLowerCase());
+    if (idx !== -1) {
+      users[idx] = user;
+      saveUsers(users);
+    }
+  }
+
+  // رقم حساب عشوائي 10 أرقام
+  function generateAccountNumber() {
+    let num = "";
+    for(let i=0; i<10; i++) {
+      num += Math.floor(Math.random() * 10);
+    }
+    return num;
+  }
+
+  // الإشعارات مع دعم الـ Notification API
+  function notify(title, body) {
+    if (Notification.permission === "granted") {
+      new Notification(title, {
+        body,
+        icon: "https://i.ibb.co/Z1WwNsQR/image.png",
+        silent: false,
+      });
+    }
+  }
+
+  // التحقق من صلاحية الإشعارات عند بداية التشغيل
+  function requestNotificationPermission() {
+    if (!("Notification" in window)) {
+      alert("متصفحك لا يدعم إشعارات سطح المكتب.");
+      return;
+    }
+    if (Notification.permission === "default") {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          notify("مرحبًا في مصرف جنى", "تم تفعيل الإشعارات بنجاح!");
+        }
+      });
+    }
+  }
+
+  // تحديث الواجهة مع بيانات المستخدم الحالية
+  let currentUser = null;
+
+  function updateDashboard() {
+    if (!currentUser) return;
+
+    dashUsername.textContent = currentUser.username;
+    dashAccount.textContent = currentUser.accountNumber;
+    dashBalance.textContent = currentUser.balance.toFixed(2);
+  }
+
+  // التنقل بين الشاشات
+  function showLogin() {
+    authContainer.classList.remove('hidden');
+    loginForm.classList.remove('hidden');
+    registerForm.classList.add('hidden');
+    dashboardContainer.classList.add('hidden');
+    messageDiv.textContent = "";
+    clearMsgs();
+  }
+  function showRegister() {
+    authContainer.classList.remove('hidden');
+    loginForm.classList.add('hidden');
+    registerForm.classList.remove('hidden');
+    dashboardContainer.classList.add('hidden');
+    messageDiv.textContent = "";
+    clearMsgs();
+  }
+  function showDashboard() {
+    authContainer.classList.add('hidden');
+    dashboardContainer.classList.remove('hidden');
+    clearMsgs();
+  }
+
+  // مسح رسائل
+  function clearMsgs() {
+    addFundsMsg.textContent = "";
+    transferMsg.textContent = "";
+    payBillMsg.textContent = "";
+    messageDiv.textContent = "";
+  }
+
+  // تسجيل حساب جديد
+  registerBtn.addEventListener('click', () => {
+    clearMsgs();
+    const username = registerUsername.value.trim();
+    const password = registerPassword.value;
+
+    if (!username || !password) {
+      messageDiv.textContent = "الرجاء إدخال اسم مستخدم وكلمة مرور.";
+      return;
+    }
+    if (getUser(username)) {
+      messageDiv.textContent = "اسم المستخدم موجود بالفعل.";
       return;
     }
 
-    let result;
+    const accountNumber = generateAccountNumber();
+    const newUser = {
+      username,
+      password,
+      accountNumber,
+      balance: 0,
+      notifications: []
+    };
 
-    switch(op) {
-      case 'add':
-        result = val1 + val2;
-        break;
-      case 'subtract':
-        result = val1 - val2;
-        break;
-      case 'multiply':
-        result = val1 * val2;
-        break;
-      case 'divide':
-        if(val2 === 0) {
-          resultDiv.textContent = "القسمة على صفر غير معرفة!";
-          return;
-        }
-        result = val1 / val2;
-        break;
-      default:
-        resultDiv.textContent = "عملية غير معروفة.";
-        return;
+    const users = getUsers();
+    users.push(newUser);
+    saveUsers(users);
+
+    messageDiv.style.color = '#6fcf97';
+    messageDiv.textContent = "تم إنشاء الحساب بنجاح! يمكنك تسجيل الدخول الآن.";
+    registerUsername.value = "";
+    registerPassword.value = "";
+
+    setTimeout(() => {
+      messageDiv.style.color = '#f7a5f7';
+      showLogin();
+    }, 1800);
+  });
+
+  // تسجيل دخول
+  loginBtn.addEventListener('click', () => {
+    clearMsgs();
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value;
+
+    if (!username || !password) {
+      messageDiv.textContent = "الرجاء إدخال اسم مستخدم وكلمة مرور.";
+      return;
     }
 
-    // اظهار النتيجة مع 3 أرقام عشرية كحد أقصى
-    resultDiv.textContent = `النتيجة: ${result.toFixed(3)}`;
+    const user = getUser(username);
+    if (!user || user.password !== password) {
+      messageDiv.textContent = "اسم المستخدم أو كلمة المرور غير صحيحة.";
+      return;
+    }
+
+    currentUser = user;
+    updateDashboard();
+    showDashboard();
+    startRandomBills();
+    requestNotificationPermission();
+    loginUsername.value = "";
+    loginPassword.value = "";
+  });
+
+  // تسجيل خروج
+  logoutBtn.addEventListener('click', () => {
+    stopRandomBills();
+    currentUser = null;
+    showLogin();
+  });
+
+  // إضافة أموال بكود المطور
+  addFundsBtn.addEventListener('click', () => {
+    addFundsMsg.textContent = "";
+    const code = addFundsCodeInput.value.trim();
+
+    if (code !== devCode) {
+      addFundsMsg.textContent = "كود المطور غير صحيح!";
+      return;
+    }
+
+    currentUser.balance += 5000;
+    saveUser(currentUser);
+    updateDashboard();
+    addFundsMsg.style.color = "#6fcf97";
+    addFundsMsg.textContent = "تم إضافة 5000 ريال إلى رصيدك.";
+    addFundsCodeInput.value = "";
+    notify("مصرف جنى", "تم إضافة أموال جديدة إلى حسابك.");
+  });
+
+  // تحويل الأموال بين المستخدمين
+  transferBtn.addEventListener('click', () => {
+    transferMsg.textContent = "";
+    if (!currentUser) return;
+
+    const toUsername = transferToInput.value.trim();
+    const amount = parseFloat(transferAmountInput.value);
+
+    if (!toUsername || isNaN(amount) || amount <= 0) {
+      transferMsg.textContent = "يرجى إدخال اسم مستخدم صالح والمبلغ.";
+      return;
+    }
+    if (toUsername.toLowerCase() === currentUser.username.toLowerCase()) {
+      transferMsg.textContent = "لا يمكنك تحويل الأموال لنفسك.";
+      return;
+    }
+    if (amount > currentUser.balance) {
+      transferMsg.textContent = "الرصيد غير كافٍ.";
+      return;
+    }
+
+    const recipient = getUser(toUsername);
+    if (!recipient) {
+      transferMsg.textContent = "اسم المستخدم المستلم غير موجود.";
+      return;
+    }
+
+    currentUser.balance -= amount;
+    recipient.balance += amount;
+    saveUser(currentUser);
+    saveUser(recipient);
+    updateDashboard();
+
+    transferMsg.style.color = "#6fcf97";
+    transferMsg.textContent = `تم تحويل ${amount.toFixed(2)} ر.س إلى ${recipient.username}.`;
+
+    transferToInput.value = "";
+    transferAmountInput.value = "";
+
+    notify("مصرف جنى", `تم تحويل مبلغ ${amount.toFixed(2)} ر.س إلى ${recipient.username}.`);
+  });
+
+  // سداد فاتورة عشوائية
+  // سيتم إنشاء فاتورة برقم عشوائي ومبلغ عشوائي بين 50 - 1000 ريال
+  payBillBtn.addEventListener('click', () => {
+    payBillMsg.textContent = "";
+    if (!currentUser) return;
+
+    const billNum = billNumberInput.value.trim();
+    if (!billNum) {
+      payBillMsg.textContent = "يرجى إدخال رقم الفاتورة.";
+      return;
+    }
+
+    // الفواتير الوهمية تعطي مبلغ عشوائي لكل رقم فاتورة جديد
+    if (!bills[billNum]) {
+      bills[billNum] = (Math.random() * 950 + 50).toFixed(2);
+    }
+    const amountDue = parseFloat(bills[billNum]);
+
+    if (currentUser.balance < amountDue) {
+      payBillMsg.textContent = `الرصيد غير كافٍ لسداد الفاتورة بقيمة ${amountDue} ر.س.`;
+      return;
+    }
+
+    currentUser.balance -= amountDue;
+    saveUser(currentUser);
+    updateDashboard();
+
+    payBillMsg.style.color = "#6fcf97";
+    payBillMsg.textContent = `تم سداد الفاتورة رقم ${billNum} بقيمة ${amountDue} ر.س.`;
+    delete bills[billNum]; // حذف الفاتورة بعد السداد
+    billNumberInput.value = "";
+
+    notify("مصرف جنى", `تم سداد فاتورة رقم ${billNum} بنجاح.`);
+  });
+
+  // قاعدة بيانات الفواتير الوهمية في الذاكرة
+  let bills = {};
+
+  // إنشاء فواتير عشوائية تظهر إشعارات كل فترة (30-90 ثانية)
+  let billInterval = null;
+
+  function startRandomBills() {
+    if (billInterval) clearInterval(billInterval);
+
+    billInterval = setInterval(() => {
+      if (!currentUser) return;
+
+      const billNum = Math.floor(1000 + Math.random() * 9000).toString();
+      const amount = (Math.random() * 950 + 50).toFixed(2);
+
+      bills[billNum] = amount;
+
+      notify("فاتورة جديدة", `فاتورة رقم ${billNum} بقيمة ${amount} ر.س.\nيرجى السداد.`);
+
+    }, 30000 + Math.random() * 60000);
+  }
+  function stopRandomBills() {
+    if (billInterval) clearInterval(billInterval);
   }
 
-  calcBtn.addEventListener('click', calculate);
+  // التبديل بين صفحات تسجيل الدخول وإنشاء حساب
+  document.getElementById('show-register').addEventListener('click', showRegister);
+  document.getElementById('show-login').addEventListener('click', showLogin);
 
-  // دعم الضغط على Enter في الحقول
-  num1Input.addEventListener('keydown', e => { if(e.key === 'Enter') calculate(); });
-  num2Input.addEventListener('keydown', e => { if(e.key === 'Enter') calculate(); });
+  // إظهار رسالة ترحيب أولية
+  messageDiv.textContent = "أهلاً بك في مصرف جنى، الرجاء تسجيل الدخول أو إنشاء حساب.";
+
+  // عند تحميل الصفحة
+  window.onload = () => {
+    showLogin();
+  };
+})();
 </script>
 
 </body>
