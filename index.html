@@ -386,9 +386,9 @@
       
       if (currentGistId) {
         // جلب Gist محدد
-        response = await fetch(`https://api.github.com/gists/${currentGistId}`, {
+        response = await fetch(`https://api.github.com/gists/${currentGistId}`, { // صح
           headers: {
-            'Authorization': `token ${GITHUB_TOKEN}`,
+           'Authorization': `Bearer ${GITHUB_TOKEN}`, // صح
             'Accept': 'application/vnd.github.v3+json'
           }
         });
@@ -396,7 +396,7 @@
         // البحث عن Gist موجود
         response = await fetch('https://api.github.com/gists', {
           headers: {
-            'Authorization': `token ${GITHUB_TOKEN}`,
+           'Authorization': `Bearer ${GITHUB_TOKEN}`, // صح
             'Accept': 'application/vnd.github.v3+json'
           }
         });
@@ -406,9 +406,9 @@
         
         if (bankGist) {
           currentGistId = bankGist.id;
-          response = await fetch(`https://api.github.com/gists/${currentGistId}`, {
+          response = await fetch(`https://api.github.com/gists/${currentGistId}`, { // صح
             headers: {
-              'Authorization': `token ${GITHUB_TOKEN}`,
+             'Authorization': `Bearer ${GITHUB_TOKEN}`, // صح
               'Accept': 'application/vnd.github.v3+json'
             }
           });
@@ -464,10 +464,10 @@
       
       if (currentGistId) {
         // تحديث Gist موجود
-        response = await fetch(`https://api.github.com/gists/${currentGistId}`, {
+        response = await fetch(`https://api.github.com/gists/${currentGistId}`, { // صح
           method: 'PATCH',
           headers: {
-            'Authorization': `token ${GITHUB_TOKEN}`,
+           'Authorization': `Bearer ${GITHUB_TOKEN}`, // صح
             'Accept': 'application/vnd.github.v3+json',
             'Content-Type': 'application/json'
           },
@@ -478,7 +478,7 @@
         response = await fetch('https://api.github.com/gists', {
           method: 'POST',
           headers: {
-            'Authorization': `token ${GITHUB_TOKEN}`,
+           'Authorization': `Bearer ${GITHUB_TOKEN}`, // صح
             'Accept': 'application/vnd.github.v3+json',
             'Content-Type': 'application/json'
           },
