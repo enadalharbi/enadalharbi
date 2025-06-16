@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>جنى - تطبيق عصري</title>
+<title>حاسبة جنى</title>
 
 <style>
   /* خلفية داكنة منقطة */
@@ -17,10 +17,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100vh;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px 60px;
     text-align: center;
-    padding: 20px;
   }
 
   img.logo {
@@ -33,33 +33,82 @@
 
   h1 {
     font-size: 3rem;
-    margin-bottom: 0.2em;
+    margin-bottom: 0.3em;
     color: #8a2be2;
     text-shadow: 0 0 10px #8a2be2;
   }
 
   p.description {
     font-size: 1.2rem;
-    max-width: 280px;
+    max-width: 320px;
     margin: 0 auto 30px auto;
     color: #bbb;
   }
 
-  .countdown {
-    font-size: 2rem;
+  .calculator {
     background: #1f1f1f;
-    padding: 15px 30px;
-    border-radius: 15px;
-    box-shadow: 0 0 20px #8a2be2;
-    letter-spacing: 1.3px;
-    user-select: none;
-    width: fit-content;
-    margin: 0 auto;
+    padding: 30px 40px 40px;
+    border-radius: 25px;
+    box-shadow: 0 0 30px #8a2be2;
+    width: 320px;
+    max-width: 90vw;
   }
 
-  .countdown span {
-    display: inline-block;
-    min-width: 60px;
+  input[type="number"] {
+    width: 100%;
+    padding: 15px 20px;
+    font-size: 1.3rem;
+    border-radius: 15px;
+    border: none;
+    margin-bottom: 20px;
+    background-color: #2a2a2a;
+    color: #eee;
+    box-shadow: inset 0 0 8px #4b0082;
+    transition: background-color 0.3s ease;
+  }
+
+  input[type="number"]:focus {
+    outline: none;
+    background-color: #3b3b3b;
+  }
+
+  select {
+    width: 100%;
+    padding: 15px 20px;
+    font-size: 1.3rem;
+    border-radius: 15px;
+    border: none;
+    margin-bottom: 30px;
+    background-color: #2a2a2a;
+    color: #eee;
+    box-shadow: inset 0 0 8px #4b0082;
+    cursor: pointer;
+  }
+
+  button.calculate-btn {
+    width: 100%;
+    background-color: #8a2be2;
+    color: #eee;
+    font-size: 1.5rem;
+    padding: 15px 0;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 0 15px #8a2be2;
+    transition: background-color 0.3s ease;
+  }
+
+  button.calculate-btn:hover {
+    background-color: #7a23d9;
+  }
+
+  .result {
+    margin-top: 30px;
+    font-size: 1.6rem;
+    color: #d8bfff;
+    min-height: 36px;
+    font-weight: 600;
+    user-select: none;
   }
 
   /* استايلات متجاوبة */
@@ -67,9 +116,24 @@
     h1 {
       font-size: 2.2rem;
     }
-    .countdown {
-      font-size: 1.5rem;
-      padding: 12px 20px;
+
+    .calculator {
+      padding: 20px 25px 30px;
+      width: 95vw;
+    }
+
+    input[type="number"], select {
+      font-size: 1.1rem;
+      padding: 12px 15px;
+    }
+
+    button.calculate-btn {
+      font-size: 1.3rem;
+      padding: 12px 0;
+    }
+
+    .result {
+      font-size: 1.3rem;
     }
   }
 </style>
@@ -77,46 +141,80 @@
 </head>
 <body>
 
-<img src="https://i.ibb.co/Z1WwNsQR/image.png" alt="لوقو جنى" class="logo" />
+<img src="https://i.ibb.co/Z1WwNsQR/image.png" alt="لوقو حاسبة جنى" class="logo" />
 
-<h1>جنى</h1>
-<p class="description">مرحبًا بك في تطبيق جنى، تجربة أنيقة وبسيطة تجمعك مع كل جديد.</p>
+<h1>حاسبة جنى</h1>
+<p class="description">حاسبة بسيطة وأنيقة لعمليات الجمع والطرح والضرب والقسمة.</p>
 
-<div class="countdown" aria-label="العد التنازلي لتدشين التطبيق">
-  <span id="days">--</span> أيام
-  <span id="hours">--</span> ساعات
-  <span id="minutes">--</span> دقائق
-  <span id="seconds">--</span> ثواني
+<div class="calculator" role="form" aria-label="حاسبة العمليات الحسابية">
+
+  <input type="number" id="num1" placeholder="العدد الأول" aria-label="العدد الأول" required />
+
+  <input type="number" id="num2" placeholder="العدد الثاني" aria-label="العدد الثاني" required />
+
+  <select id="operation" aria-label="اختيار العملية الحسابية">
+    <option value="add">جمع +</option>
+    <option value="subtract">طرح -</option>
+    <option value="multiply">ضرب ×</option>
+    <option value="divide">قسمة ÷</option>
+  </select>
+
+  <button class="calculate-btn" id="calcBtn" aria-describedby="result">احسب</button>
+
+  <div class="result" id="result" aria-live="polite" aria-atomic="true"></div>
+
 </div>
 
 <script>
-  // تعيين تاريخ الحدث (مثلاً بعد 10 أيام من الآن)
-  const targetDate = new Date();
-  targetDate.setDate(targetDate.getDate() + 10);
+  const num1Input = document.getElementById('num1');
+  const num2Input = document.getElementById('num2');
+  const operationSelect = document.getElementById('operation');
+  const resultDiv = document.getElementById('result');
+  const calcBtn = document.getElementById('calcBtn');
 
-  function updateCountdown() {
-    const now = new Date();
-    const diff = targetDate - now;
+  function calculate() {
+    const val1 = parseFloat(num1Input.value);
+    const val2 = parseFloat(num2Input.value);
+    const op = operationSelect.value;
 
-    if (diff <= 0) {
-      document.querySelector('.countdown').textContent = "الحدث بدأ! 🎉";
-      clearInterval(timer);
+    if (isNaN(val1) || isNaN(val2)) {
+      resultDiv.textContent = "الرجاء إدخال أرقام صحيحة في كلا الحقلين.";
       return;
     }
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
+    let result;
 
-    document.getElementById('days').textContent = days.toString().padStart(2, '0');
-    document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-    document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-    document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+    switch(op) {
+      case 'add':
+        result = val1 + val2;
+        break;
+      case 'subtract':
+        result = val1 - val2;
+        break;
+      case 'multiply':
+        result = val1 * val2;
+        break;
+      case 'divide':
+        if(val2 === 0) {
+          resultDiv.textContent = "القسمة على صفر غير معرفة!";
+          return;
+        }
+        result = val1 / val2;
+        break;
+      default:
+        resultDiv.textContent = "عملية غير معروفة.";
+        return;
+    }
+
+    // اظهار النتيجة مع 3 أرقام عشرية كحد أقصى
+    resultDiv.textContent = `النتيجة: ${result.toFixed(3)}`;
   }
 
-  updateCountdown();
-  const timer = setInterval(updateCountdown, 1000);
+  calcBtn.addEventListener('click', calculate);
+
+  // دعم الضغط على Enter في الحقول
+  num1Input.addEventListener('keydown', e => { if(e.key === 'Enter') calculate(); });
+  num2Input.addEventListener('keydown', e => { if(e.key === 'Enter') calculate(); });
 </script>
 
 </body>
