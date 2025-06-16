@@ -1,706 +1,214 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>مصرف جنى - البنك الإلكتروني</title>
-
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
-
-  body {
-    margin: 0;
-    background: #121212;
-    color: #ddd;
-    font-family: 'Cairo', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 15px;
-  }
-  header {
-    text-align: center;
-    margin-bottom: 25px;
-  }
-  header img {
-    width: 120px;
-    border-radius: 25%;
-    box-shadow: 0 0 15px #8a2be2;
-    margin-bottom: 10px;
-  }
-  header h1 {
-    margin: 0;
-    font-size: 2.8rem;
-    color: #8a2be2;
-    text-shadow: 0 0 10px #8a2be2;
-  }
-
-  /* الحاويات */
-  .container {
-    background: #1f1f1f;
-    box-shadow: 0 0 25px #6e33c9cc;
-    border-radius: 15px;
-    padding: 20px;
-    max-width: 420px;
-    width: 100%;
-    margin-bottom: 20px;
-  }
-
-  label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: bold;
-  }
-  input[type=text],
-  input[type=password],
-  input[type=number] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 14px;
-    border-radius: 8px;
-    border: none;
-    font-size: 1rem;
-    background: #2c2c2c;
-    color: #eee;
-    box-sizing: border-box;
-  }
-  input::placeholder {
-    color: #888;
-  }
-  button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 12px;
-    background: #8a2be2;
-    color: white;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
-  button:hover {
-    background: #9f4ef7;
-  }
-  .link {
-    margin-top: 10px;
-    text-align: center;
-    color: #a88cff;
-    cursor: pointer;
-    user-select: none;
-  }
-  .link:hover {
-    text-decoration: underline;
-  }
-
-  /* رسائل الأخطاء */
-  .msg {
-    color: #e76f51;
-    margin-bottom: 10px;
-    min-height: 20px;
-    text-align: center;
-  }
-  .msg.success {
-    color: #6fcf97;
-  }
-
-  /* لوحة المستخدم */
-  #dashboard {
-    display: none;
-  }
-  #dashboard h2 {
-    margin-top: 0;
-    margin-bottom: 12px;
-  }
-  .info {
-    margin-bottom: 15px;
-    font-size: 1.05rem;
-    background: #2a2a2a;
-    padding: 12px 15px;
-    border-radius: 10px;
-    user-select: text;
-  }
-
-  /* أقسام العمليات */
-  .section {
-    margin-bottom: 25px;
-  }
-  .section h3 {
-    margin-bottom: 12px;
-    color: #bb86fc;
-  }
-
-  /* جدول سجل العمليات */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #222;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 0 10px #6e33c9bb;
-  }
-  th, td {
-    padding: 8px 10px;
-    color: #ddd;
-    border-bottom: 1px solid #444;
-    font-size: 0.9rem;
-    text-align: center;
-  }
-  th {
-    background: #3b2a72;
-  }
-  tbody tr:hover {
-    background: #3b2a72aa;
-  }
-
-  /* إشعار داخل الصفحة */
-  #internal-notify {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #8a2be2;
-    padding: 15px 25px;
-    color: white;
-    border-radius: 25px;
-    font-weight: bold;
-    font-size: 1.1rem;
-    box-shadow: 0 0 15px #8a2be2;
-    display: none;
-    z-index: 9999;
-    user-select: none;
-  }
-
-  /* متجاوب */
-  @media (max-width: 480px) {
-    .container {
-      max-width: 95%;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مصرف جنى</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background-color: #121212;
+      color: #eee;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
     }
-  }
-</style>
-
+    .container {
+      max-width: 480px;
+      margin: 40px auto;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #8a2be2;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    button {
+      background: #8a2be2;
+      color: white;
+      cursor: pointer;
+    }
+    h1, h2 {
+      color: #8a2be2;
+    }
+    .hidden { display: none; }
+    #logo {
+      width: 100px;
+      border-radius: 20%;
+      box-shadow: 0 0 10px #8a2be2;
+    }
+    .note { font-size: 0.9rem; color: #bbb; }
+  </style>
 </head>
 <body>
-
-<header>
-  <img src="https://i.ibb.co/Z1WwNsQR/image.png" alt="لوقو مصرف جنى" />
+<div class="container">
+  <img src="https://i.ibb.co/Z1WwNsQR/image.png" id="logo">
   <h1>مصرف جنى</h1>
-</header>
 
-<div id="internal-notify" role="alert" aria-live="assertive"></div>
-
-<!-- صفحة تسجيل الدخول -->
-<div class="container" id="login-page">
-  <h2>تسجيل الدخول</h2>
-  <div class="msg" id="login-msg"></div>
-  <label for="login-username">اسم المستخدم</label>
-  <input type="text" id="login-username" placeholder="ادخل اسم المستخدم" autocomplete="username" />
-  <label for="login-password">كلمة المرور</label>
-  <input type="password" id="login-password" placeholder="ادخل كلمة المرور" autocomplete="current-password" />
-  <button id="login-btn">تسجيل الدخول</button>
-  <div class="link" id="to-register">إنشاء حساب جديد</div>
-</div>
-
-<!-- صفحة تسجيل جديد -->
-<div class="container" id="register-page" style="display:none;">
-  <h2>إنشاء حساب جديد</h2>
-  <div class="msg" id="register-msg"></div>
-  <label for="reg-username">اسم المستخدم</label>
-  <input type="text" id="reg-username" placeholder="اختر اسم مستخدم" autocomplete="username" />
-  <label for="reg-password">كلمة المرور</label>
-  <input type="password" id="reg-password" placeholder="اختر كلمة المرور" autocomplete="new-password" />
-  <button id="register-btn">إنشاء الحساب</button>
-  <div class="link" id="to-login">العودة لتسجيل الدخول</div>
-</div>
-
-<!-- لوحة المستخدم -->
-<div class="container" id="dashboard">
-  <h2>مرحبًا، <span id="user-name"></span>!</h2>
-  <div class="info"><strong>رقم الحساب:</strong> <span id="user-account"></span></div>
-  <div class="info"><strong>الرصيد الحالي:</strong> <span id="user-balance"></span> ر.س</div>
-
-  <div class="section" id="transfer-section">
-    <h3>تحويل الأموال</h3>
-    <div class="msg" id="transfer-msg"></div>
-    <label for="transfer-account">رقم الحساب المستلم</label>
-    <input type="text" id="transfer-account" placeholder="أدخل رقم حساب المستلم" />
-    <label for="transfer-amount">المبلغ (ر.س)</label>
-    <input type="number" id="transfer-amount" min="1" placeholder="أدخل المبلغ" />
-    <button id="transfer-btn">إرسال التحويل</button>
+  <div id="loginPage">
+    <input type="text" id="loginUsername" placeholder="اسم المستخدم">
+    <input type="password" id="loginPassword" placeholder="كلمة المرور">
+    <button onclick="login()">تسجيل الدخول</button>
+    <button onclick="showRegister()">تسجيل جديد</button>
+    <p id="loginMsg"></p>
   </div>
 
-  <div class="section" id="bill-section">
-    <h3>سداد الفواتير</h3>
-    <div class="msg" id="bill-msg"></div>
-    <label for="bill-number">رقم الفاتورة</label>
-    <input type="text" id="bill-number" placeholder="أدخل رقم الفاتورة" />
-    <button id="bill-pay-btn">سداد الفاتورة</button>
+  <div id="registerPage" class="hidden">
+    <input type="text" id="registerUsername" placeholder="اسم المستخدم">
+    <input type="password" id="registerPassword" placeholder="كلمة المرور">
+    <button onclick="register()">إنشاء الحساب</button>
+    <button onclick="showLogin()">رجوع</button>
+    <p id="registerMsg"></p>
   </div>
 
-  <div class="section" id="history-section">
-    <h3>سجل العمليات</h3>
-    <button id="download-pdf-btn" style="margin-bottom:10px;">تحميل كشف حساب PDF</button>
-    <table aria-label="سجل العمليات" id="history-table">
-      <thead>
-        <tr><th>التاريخ</th><th>نوع العملية</th><th>التفاصيل</th><th>المبلغ (ر.س)</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+  <div id="dashboard" class="hidden">
+    <h2 id="welcomeMsg"></h2>
+    <p>رقم الحساب: <span id="accNumber"></span></p>
+    <p>الرصيد: <span id="balance">0</span> ر.س</p>
 
-  <button id="logout-btn" style="background:#cc4444; margin-top: 15px;">تسجيل خروج</button>
+    <hr>
+
+    <input type="text" id="transferTarget" placeholder="رقم الحساب المحول إليه">
+    <input type="number" id="transferAmount" placeholder="المبلغ">
+    <button onclick="transfer()">تحويل</button>
+    <p id="transferMsg"></p>
+
+    <input type="text" id="billNumber" placeholder="رقم فاتورة">
+    <button onclick="payBill()">سداد</button>
+    <p id="billMsg"></p>
+
+    <input type="text" id="devCode" placeholder="رمز المطور">
+    <button onclick="addDevFunds()">إضافة أموال</button>
+
+    <button onclick="downloadStatement()">تحميل كشف PDF</button>
+    <button onclick="logout()">تسجيل خروج</button>
+  </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-(() => {
-  'use strict';
+const STORAGE_KEY = 'janna_db';
+let db = { users: [], history: [] };
+let currentUser = null;
+const DEV_CODE = "A1B1B1B1B1B1B1B1";
 
-  // --- المتغيرات الرئيسية ---
-  const STORAGE_USERS_KEY = 'janna_bank_users';
-  const STORAGE_CURRENT_USER = 'janna_bank_current_user';
-  const STORAGE_HISTORY = 'janna_bank_history';
+function saveDB() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+}
+function loadDB() {
+  const data = localStorage.getItem(STORAGE_KEY);
+  if(data) db = JSON.parse(data);
+  else saveDB();
+}
+function saveCurrentUser() {
+  localStorage.setItem("janna_current", currentUser.username);
+}
+function loadCurrentUser() {
+  const u = localStorage.getItem("janna_current");
+  if (u) currentUser = db.users.find(user => user.username === u);
+}
+function showLogin() {
+  loginPage.style.display = 'block';
+  registerPage.style.display = 'none';
+  dashboard.classList.add('hidden');
+}
+function showRegister() {
+  loginPage.style.display = 'none';
+  registerPage.style.display = 'block';
+  dashboard.classList.add('hidden');
+}
+function showDashboard() {
+  loginPage.style.display = 'none';
+  registerPage.style.display = 'none';
+  dashboard.classList.remove('hidden');
+  document.getElementById("welcomeMsg").textContent = `مرحباً ${currentUser.username}`;
+  document.getElementById("accNumber").textContent = currentUser.account;
+  updateBalance();
+}
+function updateBalance() {
+  document.getElementById("balance").textContent = currentUser.balance.toFixed(2);
+}
+function login() {
+  const u = loginUsername.value.trim();
+  const p = loginPassword.value;
+  const found = db.users.find(user => user.username === u && user.password === p);
+  if(!found) return loginMsg.textContent = "بيانات غير صحيحة.";
+  currentUser = found;
+  saveCurrentUser();
+  showDashboard();
+}
+function register() {
+  const u = registerUsername.value.trim();
+  const p = registerPassword.value;
+  if(db.users.find(user => user.username === u)) return registerMsg.textContent = "المستخدم موجود مسبقاً.";
+  const acc = Math.floor(1000000000 + Math.random()*9000000000).toString();
+  const newUser = { username: u, password: p, account: acc, balance: 0 };
+  db.users.push(newUser);
+  saveDB();
+  registerMsg.textContent = "تم إنشاء الحساب بنجاح!";
+}
+function logout() {
+  currentUser = null;
+  localStorage.removeItem("janna_current");
+  showLogin();
+}
+function transfer() {
+  const targetAcc = transferTarget.value.trim();
+  const amount = parseFloat(transferAmount.value);
+  if(isNaN(amount) || amount <= 0) return transferMsg.textContent = "أدخل مبلغاً صالحاً.";
+  if(targetAcc === currentUser.account) return transferMsg.textContent = "لا يمكن التحويل لنفس الحساب.";
+  const target = db.users.find(u => u.account === targetAcc);
+  if(!target) return transferMsg.textContent = "رقم الحساب غير موجود.";
+  if(currentUser.balance < amount) return transferMsg.textContent = "الرصيد لا يكفي.";
 
-  const developerCode = 'A11B11B11B11B11';
-
-  // تحميل بيانات المستخدمين من localStorage أو إنشاء مصفوفة فارغة
-  let users = JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || '[]');
-  let currentUser = null;
-  let history = JSON.parse(localStorage.getItem(STORAGE_HISTORY) || '[]');
-
-  // إشعار داخلي بدل الإشعارات غير المدعومة
-  const internalNotify = document.getElementById('internal-notify');
-
-  // عناصر الصفحات
-  const loginPage = document.getElementById('login-page');
-  const registerPage = document.getElementById('register-page');
-  const dashboard = document.getElementById('dashboard');
-
-  // تسجيل الدخول عناصر
-  const loginUsernameInput = document.getElementById('login-username');
-  const loginPasswordInput = document.getElementById('login-password');
-  const loginBtn = document.getElementById('login-btn');
-  const loginMsg = document.getElementById('login-msg');
-  const toRegisterLink = document.getElementById('to-register');
-
-  // تسجيل جديد عناصر
-  const registerUsernameInput = document.getElementById('reg-username');
-  const registerPasswordInput = document.getElementById('reg-password');
-  const registerBtn = document.getElementById('register-btn');
-  const registerMsg = document.getElementById('register-msg');
-  const toLoginLink = document.getElementById('to-login');
-
-  // لوحة المستخدم عناصر
-  const userNameSpan = document.getElementById('user-name');
-  const userAccountSpan = document.getElementById('user-account');
-  const userBalanceSpan = document.getElementById('user-balance');
-
-  const transferAccountInput = document.getElementById('transfer-account');
-  const transferAmountInput = document.getElementById('transfer-amount');
-  const transferBtn = document.getElementById('transfer-btn');
-  const transferMsg = document.getElementById('transfer-msg');
-
-  const billNumberInput = document.getElementById('bill-number');
-  const billPayBtn = document.getElementById('bill-pay-btn');
-  const billMsg = document.getElementById('bill-msg');
-
-  const logoutBtn = document.getElementById('logout-btn');
-
-  const historyTableBody = document.querySelector('#history-table tbody');
-
-  // توليد رقم حساب عشوائي مؤلف من 10 أرقام (رقم الحساب يجب أن يكون فريد)
-  function generateAccountNumber() {
-    let num;
-    do {
-      num = '';
-      for (let i = 0; i < 10; i++) {
-        num += Math.floor(Math.random() * 10);
-      }
-    } while (users.some(u => u.accountNumber === num));
-    return num;
+  currentUser.balance -= amount;
+  target.balance += amount;
+  db.history.push({ user: currentUser.username, type: 'تحويل', to: targetAcc, amount, date: new Date().toISOString() });
+  db.history.push({ user: target.username, type: 'وارد', from: currentUser.account, amount, date: new Date().toISOString() });
+  saveDB(); updateBalance();
+  transferMsg.textContent = "تم التحويل بنجاح.";
+}
+function payBill() {
+  const number = billNumber.value.trim();
+  if(!number) return billMsg.textContent = "أدخل رقم الفاتورة.";
+  const amount = Math.floor(Math.random()*280)+20;
+  if(currentUser.balance < amount) return billMsg.textContent = `لا يكفي رصيدك (${amount} ر.س)`;
+  currentUser.balance -= amount;
+  db.history.push({ user: currentUser.username, type: 'فاتورة', number, amount, date: new Date().toISOString() });
+  saveDB(); updateBalance();
+  billMsg.textContent = `تم السداد (${amount} ر.س)`;
+}
+function addDevFunds() {
+  if(devCode.value.trim() === DEV_CODE) {
+    currentUser.balance += 9999;
+    db.history.push({ user: currentUser.username, type: 'مطوّر', amount: 9999, date: new Date().toISOString() });
+    saveDB(); updateBalance();
+    alert("تم إضافة 9999 ر.س لحسابك");
+  } else {
+    alert("رمز غير صحيح");
   }
-
-  // حفظ بيانات المستخدمين في localStorage
-  function saveUsers() {
-    localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
-  }
-
-  // حفظ المستخدم الحالي
-  function saveCurrentUser() {
-    if(currentUser) {
-      localStorage.setItem(STORAGE_CURRENT_USER, JSON.stringify(currentUser));
-    } else {
-      localStorage.removeItem(STORAGE_CURRENT_USER);
-    }
-  }
-
-  // حفظ سجل العمليات
-  function saveHistory() {
-    localStorage.setItem(STORAGE_HISTORY, JSON.stringify(history));
-  }
-
-  // جلب مستخدم حسب اسم المستخدم (غير حساس لحالة الأحرف)
-  function getUserByUsername(username) {
-    return users.find(u => u.username.toLowerCase() === username.toLowerCase());
-  }
-  // جلب مستخدم حسب رقم الحساب
-  function getUserByAccount(accountNumber) {
-    return users.find(u => u.accountNumber === accountNumber);
-  }
-
-  // عرض إشعار (تحاول إشعارات النظام أولاً، ثم تعرض إشعار داخلي)
-  function notify(title, body) {
-    if (!("Notification" in window)) {
-      showInternalNotify(`${title}: ${body}`);
-      return;
-    }
-    if (Notification.permission === "granted") {
-      new Notification(title, { body, icon: 'https://i.ibb.co/Z1WwNsQR/image.png' });
-    } else if (Notification.permission !== "denied") {
-      Notification.requestPermission().then(permission => {
-        if (permission === "granted") {
-          new Notification(title, { body, icon: 'https://i.ibb.co/Z1WwNsQR/image.png' });
-        } else {
-          showInternalNotify(`${title}: ${body}`);
-        }
-      });
-    } else {
-      showInternalNotify(`${title}: ${body}`);
-    }
-  }
-  // إشعار داخل الموقع
-  let internalNotifyTimeout = null;
-  function showInternalNotify(text) {
-    if(internalNotifyTimeout) clearTimeout(internalNotifyTimeout);
-    internalNotify.textContent = text;
-    internalNotify.style.display = 'block';
-    internalNotifyTimeout = setTimeout(() => {
-      internalNotify.style.display = 'none';
-    }, 4000);
-  }
-
-  // تحديث واجهة المستخدم مع بيانات المستخدم الحالي
-  function updateDashboard() {
-    if(!currentUser) return;
-    userNameSpan.textContent = currentUser.username;
-    userAccountSpan.textContent = currentUser.accountNumber;
-    userBalanceSpan.textContent = currentUser.balance.toFixed(2);
-
-    updateHistoryTable();
-  }
-
-  // تحديث جدول سجل العمليات
-  function updateHistoryTable() {
-    historyTableBody.innerHTML = '';
-    if (!history.length) {
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.colSpan = 4;
-      td.textContent = 'لا توجد عمليات حتى الآن';
-      td.style.color = '#aaa';
-      tr.appendChild(td);
-      historyTableBody.appendChild(tr);
-      return;
-    }
-    // عرض العمليات المرتبة من الأحدث للأقدم
-    const filtered = history
-      .filter(op => op.username === currentUser.username)
-      .sort((a,b) => new Date(b.date) - new Date(a.date));
-    filtered.forEach(op => {
-      const tr = document.createElement('tr');
-      const dateTd = document.createElement('td');
-      const typeTd = document.createElement('td');
-      const detailsTd = document.createElement('td');
-      const amountTd = document.createElement('td');
-
-      const d = new Date(op.date);
-      dateTd.textContent = d.toLocaleString('ar-EG');
-      typeTd.textContent = op.type;
-      detailsTd.textContent = op.details;
-      amountTd.textContent = op.amount.toFixed(2);
-
-      tr.appendChild(dateTd);
-      tr.appendChild(typeTd);
-      tr.appendChild(detailsTd);
-      tr.appendChild(amountTd);
-      historyTableBody.appendChild(tr);
-    });
-  }
-
-  // إنشاء حساب جديد
-  registerBtn.addEventListener('click', () => {
-    const username = registerUsernameInput.value.trim();
-    const password = registerPasswordInput.value;
-
-    registerMsg.textContent = '';
-    if(!username || !password) {
-      registerMsg.textContent = 'يرجى إدخال اسم المستخدم وكلمة المرور.';
-      return;
-    }
-    if(getUserByUsername(username)) {
-      registerMsg.textContent = 'اسم المستخدم هذا موجود مسبقاً.';
-      return;
-    }
-
-    const newAccountNumber = generateAccountNumber();
-
-    const newUser = {
-      username,
-      password,
-      accountNumber: newAccountNumber,
-      balance: 0
-    };
-    users.push(newUser);
-    saveUsers();
-
-    registerMsg.classList.add('success');
-    registerMsg.textContent = `تم إنشاء الحساب بنجاح! رقم حسابك: ${newAccountNumber}`;
-    // تنظيف الحقول
-    registerUsernameInput.value = '';
-    registerPasswordInput.value = '';
-
-    setTimeout(() => {
-      showLogin();
-      registerMsg.textContent = '';
-      registerMsg.classList.remove('success');
-    }, 2500);
+}
+function downloadStatement() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.text(`كشف حساب - ${currentUser.username}`, 20, 20);
+  const history = db.history.filter(h => h.user === currentUser.username);
+  let y = 30;
+  history.slice(-20).forEach(op => {
+    doc.text(`${op.type} - ${op.amount} ر.س - ${op.date}`, 20, y);
+    y += 10;
   });
+  doc.save("statement.pdf");
+}
 
-  // تسجيل الدخول
-  loginBtn.addEventListener('click', () => {
-    const username = loginUsernameInput.value.trim();
-    const password = loginPasswordInput.value;
-
-    loginMsg.textContent = '';
-    const user = getUserByUsername(username);
-    if(!user || user.password !== password) {
-      loginMsg.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
-      return;
-    }
-
-    currentUser = user;
-    saveCurrentUser();
-    loginUsernameInput.value = '';
-    loginPasswordInput.value = '';
-
-    showDashboard();
-    notify("مصرف جنى", `مرحبًا ${currentUser.username}، تم تسجيل الدخول بنجاح.`);
-  });
-
-  // عرض صفحة تسجيل الدخول
-  function showLogin() {
-    loginPage.style.display = 'block';
-    registerPage.style.display = 'none';
-    dashboard.style.display = 'none';
-    loginMsg.textContent = '';
-    registerMsg.textContent = '';
-  }
-  // عرض صفحة التسجيل
-  function showRegister() {
-    loginPage.style.display = 'none';
-    registerPage.style.display = 'block';
-    dashboard.style.display = 'none';
-    loginMsg.textContent = '';
-    registerMsg.textContent = '';
-  }
-  // عرض لوحة المستخدم
-  function showDashboard() {
-    loginPage.style.display = 'none';
-    registerPage.style.display = 'none';
-    dashboard.style.display = 'block';
-    transferMsg.textContent = '';
-    billMsg.textContent = '';
-    updateDashboard();
-  }
-
-  toRegisterLink.addEventListener('click', showRegister);
-  toLoginLink.addEventListener('click', showLogin);
-
-  // تسجيل خروج
-  logoutBtn.addEventListener('click', () => {
-    currentUser = null;
-    saveCurrentUser();
-    showLogin();
-    notify("مصرف جنى", "تم تسجيل الخروج.");
-  });
-
-  // تحويل الأموال
-  transferBtn.addEventListener('click', () => {
-    transferMsg.textContent = '';
-    const targetAccount = transferAccountInput.value.trim();
-    const amount = parseFloat(transferAmountInput.value);
-
-    if(!targetAccount || isNaN(amount) || amount <= 0) {
-      transferMsg.textContent = 'يرجى إدخال رقم حساب صالح ومبلغ أكبر من صفر.';
-      return;
-    }
-    if(targetAccount === currentUser.accountNumber) {
-      transferMsg.textContent = 'لا يمكنك تحويل الأموال إلى حسابك.';
-      return;
-    }
-    const targetUser = getUserByAccount(targetAccount);
-    if(!targetUser) {
-      transferMsg.textContent = 'رقم الحساب غير موجود.';
-      return;
-    }
-    if(currentUser.balance < amount) {
-      transferMsg.textContent = 'رصيدك غير كافٍ لإتمام التحويل.';
-      return;
-    }
-
-    // تنفيذ التحويل
-    currentUser.balance -= amount;
-    targetUser.balance += amount;
-    saveUsers();
-    saveCurrentUser();
-
-    // تسجيل العملية في السجل (لكلا الطرفين)
-    const now = new Date().toISOString();
-    history.push({
-      username: currentUser.username,
-      date: now,
-      type: 'تحويل أموال',
-      details: `إلى حساب ${targetAccount}`,
-      amount: -amount
-    });
-    history.push({
-      username: targetUser.username,
-      date: now,
-      type: 'استلام تحويل',
-      details: `من حساب ${currentUser.accountNumber}`,
-      amount: amount
-    });
-    saveHistory();
-
-    updateDashboard();
-    notify("تحويل ناجح", `تم تحويل ${amount.toFixed(2)} ر.س إلى الحساب ${targetAccount}.`);
-
-    transferAccountInput.value = '';
-    transferAmountInput.value = '';
-  });
-
-  // دفع الفواتير
-  billPayBtn.addEventListener('click', () => {
-    billMsg.textContent = '';
-    const billNumber = billNumberInput.value.trim();
-    if(!billNumber) {
-      billMsg.textContent = 'يرجى إدخال رقم الفاتورة.';
-      return;
-    }
-    // الفاتورة عشوائية المبلغ بين 20 و 300 ريال
-    const billAmount = Math.floor(Math.random() * 280) + 20;
-
-    if(currentUser.balance < billAmount) {
-      billMsg.textContent = `رصيدك غير كافٍ لسداد فاتورة بقيمة ${billAmount} ر.س.`;
-      return;
-    }
-
-    // خصم المبلغ
-    currentUser.balance -= billAmount;
-    saveUsers();
-    saveCurrentUser();
-
-    // تسجيل العملية
-    const now = new Date().toISOString();
-    history.push({
-      username: currentUser.username,
-      date: now,
-      type: 'سداد فاتورة',
-      details: `فاتورة رقم ${billNumber}`,
-      amount: -billAmount
-    });
-    saveHistory();
-
-    updateDashboard();
-    notify("سداد فاتورة", `تم سداد فاتورة رقم ${billNumber} بمبلغ ${billAmount} ر.س.`);
-
-    billNumberInput.value = '';
-  });
-
-  // تحميل كشف حساب PDF باستخدام jsPDF
-  document.getElementById('download-pdf-btn').addEventListener('click', () => {
-    if (!currentUser) return;
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-      putOnlyUsedFonts:true
-    });
-
-    doc.setFont("Cairo", "normal");
-    doc.setFontSize(22);
-    doc.setTextColor("#8a2be2");
-    doc.text("كشف حساب مصرف جنى", 105, 20, null, null, "center");
-
-    doc.setFontSize(14);
-    doc.setTextColor("#ddd");
-    doc.text(`العميل: ${currentUser.username}`, 20, 35);
-    doc.text(`رقم الحساب: ${currentUser.accountNumber}`, 20, 43);
-    doc.text(`الرصيد الحالي: ${currentUser.balance.toFixed(2)} ر.س`, 20, 51);
-
-    // جدول العمليات (أحدث 20 عملية)
-    const userOps = history
-      .filter(op => op.username === currentUser.username)
-      .sort((a,b) => new Date(b.date) - new Date(a.date))
-      .slice(0, 20);
-
-    // إعدادات الجدول
-    let startY = 60;
-    doc.setFontSize(12);
-    doc.setTextColor("#fff");
-    doc.text("التاريخ", 20, startY);
-    doc.text("نوع العملية", 65, startY);
-    doc.text("التفاصيل", 110, startY);
-    doc.text("المبلغ (ر.س)", 170, startY);
-    startY += 6;
-
-    doc.setDrawColor(138,43,226);
-    doc.line(15, startY - 4, 195, startY - 4);
-
-    userOps.forEach(op => {
-      if(startY > 270) {
-        doc.addPage();
-        startY = 20;
-      }
-      const d = new Date(op.date);
-      doc.setTextColor("#ccc");
-      doc.text(d.toLocaleString('ar-EG'), 20, startY);
-      doc.text(op.type, 65, startY);
-      doc.text(op.details, 110, startY);
-      doc.text(op.amount.toFixed(2), 170, startY);
-      startY += 8;
-    });
-
-    doc.save(`كشف_حساب_${currentUser.username}.pdf`);
-  });
-
-  // عند تحميل الصفحة، محاولة تسجيل الدخول تلقائياً إذا كان هناك مستخدم محفوظ
-  window.addEventListener('load', () => {
-    const savedUser = localStorage.getItem(STORAGE_CURRENT_USER);
-    if(savedUser) {
-      currentUser = JSON.parse(savedUser);
-      // تحديث بيانات المستخدم بناءً على آخر نسخة من users
-      const found = getUserByUsername(currentUser.username);
-      if(found) {
-        currentUser = found;
-        showDashboard();
-      } else {
-        showLogin();
-      }
-    } else {
-      showLogin();
-    }
-  });
-
-  // طلب إذن إشعارات فوري (اختياري)
-  if("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
-    Notification.requestPermission();
-  }
-
-})();
+loadDB();
+loadCurrentUser();
+if(currentUser) showDashboard();
 </script>
-
 </body>
 </html>
