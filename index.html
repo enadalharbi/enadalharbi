@@ -281,9 +281,7 @@
   <div class="db-section">
     <h3>إدارة قاعدة البيانات</h3>
     <div class="msg" id="db-msg"></div>
-    <button id="export-db-btn">تصدير قاعدة البيانات</button>
-    <button id="import-db-btn" style="margin-top:10px;">استيراد قاعدة البيانات</button>
-    <input type="file" id="db-file-input" accept=".db,.sqlite,.sqlite3" style="display:none;" />
+    <button id="sync-db-btn">مزامنة قاعدة البيانات</button>
   </div>
 
   <button id="logout-btn" style="background:#cc4444; margin-top: 15px;">تسجيل خروج</button>
@@ -296,14 +294,18 @@
   'use strict';
 
   // --- المتغيرات الرئيسية ---
-  const DB_NAME = 'janna_bank.db';
   const DEVELOPER_CODE = 'A1B1B1B1B1B1B1B1';
   const DEV_BONUS_AMOUNT = 20000;
+  const GIST_FILENAME = 'janna_bank.db';
+  const GIST_DESCRIPTION = 'Janna Bank Database';
+  
+  // استبدل هذه القيم بمعلوماتك الخاصة
+  const GITHUB_TOKEN = ''; // أنشئ token من GitHub مع صلاحية gist
+  const GIST_ID = ''; // اتركه فارغاً ليتم إنشاؤه تلقائياً
 
   let db;
   let currentUser = null;
-  let dbFileHandle = null;
-  let isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  let currentGistId = GIST_ID;
 
   // إشعار داخلي بدل الإشعارات غير المدعومة
   const internalNotify = document.getElementById('internal-notify');
@@ -351,9 +353,7 @@
   const devMsg = document.getElementById('dev-msg');
 
   // قسم إدارة قاعدة البيانات
-  const exportDbBtn = document.getElementById('export-db-btn');
-  const importDbBtn = document.getElementById('import-db-btn');
-  const dbFileInput = document.getElementById('db-file-input');
+  const syncDbBtn = document.getElementById('sync-db-btn');
   const dbMsg = document.getElementById('db-msg');
 
   // توليد رقم حساب عشوائي مؤلف من 10 أرقام (رقم الحساب يجب أن يكون فريد)
@@ -374,6 +374,135 @@
     return num;
   }
 
+  // تحميل قاعدة البيانات من GitHub Gist
+  async function loadDBFromGist() {
+    if (!GITHUB_TOKEN) {
+      dbMsg.textContent = 'لم يتم تعيين GitHub token، سيتم استخدام قاعدة بيانات محلية فقط';
+      return;
+    }
+
+    try {
+      let response;
+      
+      if (currentGistId) {
+        // جلب Gist محدد
+        response = await fetch(`https://api.github.com/gists/${currentGistId}`, {
+          headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+      } else {
+        // البحث عن Gist موجود
+        response = await fetch('https://api.github.com/gists', {
+          headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        
+        const gists = await response.json();
+        const bankGist = gists.find(g => g.description === GIST_DESCRIPTION);
+        
+        if (bankGist) {
+          currentGistId = bankGist.id;
+          response = await fetch(`https://api.github.com/gists/${currentGistId}`, {
+            headers: {
+              'Authorization': `token ${GITHUB_TOKEN}`,
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          });
+        }
+      }
+      
+      if (response && response.ok) {
+        const gistData = await response.json();
+        
+        if (gistData.files && gistData.files[GIST_FILENAME]) {
+          const dbContent = gistData.files[GIST_FILENAME].content;
+          const dbData = Uint8Array.from(atob(dbContent), c => c.charCodeAt(0));
+          
+          // استبدال قاعدة البيانات الحالية
+          const SQL = await initSqlJs({
+            locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+          });
+          
+          db = new SQL.Database(dbData);
+          dbMsg.classList.add('success');
+          dbMsg.textContent = 'تم تحميل قاعدة البيانات من السحابة بنجاح';
+          setTimeout(() => { dbMsg.textContent = ''; dbMsg.classList.remove('success'); }, 3000);
+        }
+      }
+    } catch (error) {
+      console.error('خطأ في تحميل قاعدة البيانات من Gist:', error);
+      dbMsg.textContent = 'فشل في تحميل قاعدة البيانات من السحابة';
+    }
+  }
+
+  // حفظ قاعدة البيانات إلى GitHub Gist
+  async function saveDBToGist() {
+    if (!GITHUB_TOKEN) {
+      console.log('لا يوجد GitHub token، سيتم استخدام قاعدة بيانات محلية فقط');
+      return;
+    }
+
+    try {
+      const dbData = db.export();
+      const dbContent = btoa(String.fromCharCode.apply(null, dbData));
+      
+      const gistData = {
+        description: GIST_DESCRIPTION,
+        public: false,
+        files: {
+          [GIST_FILENAME]: {
+            content: dbContent
+          }
+        }
+      };
+      
+      let response;
+      
+      if (currentGistId) {
+        // تحديث Gist موجود
+        response = await fetch(`https://api.github.com/gists/${currentGistId}`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(gistData)
+        });
+      } else {
+        // إنشاء Gist جديد
+        response = await fetch('https://api.github.com/gists', {
+          method: 'POST',
+          headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(gistData)
+        });
+        
+        const result = await response.json();
+        currentGistId = result.id;
+      }
+      
+      if (response.ok) {
+        console.log('تم حفظ قاعدة البيانات إلى Gist بنجاح');
+        dbMsg.classList.add('success');
+        dbMsg.textContent = 'تم مزامنة قاعدة البيانات مع السحابة بنجاح';
+        setTimeout(() => { dbMsg.textContent = ''; dbMsg.classList.remove('success'); }, 3000);
+      } else {
+        throw new Error('Failed to save to Gist');
+      }
+    } catch (error) {
+      console.error('خطأ في حفظ قاعدة البيانات إلى Gist:', error);
+      dbMsg.textContent = 'فشل في مزامنة قاعدة البيانات مع السحابة';
+    }
+  }
+
   // تهيئة قاعدة البيانات
   async function initDB() {
     try {
@@ -382,32 +511,8 @@
         locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
       });
       
-      // محاولة تحميل قاعدة البيانات من localStorage (للسفاري والمتصفحات التي لا تدعم File System API)
-      let savedDb = localStorage.getItem(DB_NAME);
-      let dbData;
-      
-      if (savedDb) {
-        dbData = new Uint8Array(JSON.parse(savedDb)).buffer;
-      } else if (!isSafari && 'showOpenFilePicker' in window) {
-        // محاولة تحميل قاعدة البيانات من الملف (للمتصفحات الحديثة)
-        try {
-          [dbFileHandle] = await window.showOpenFilePicker({
-            types: [{
-              description: 'قاعدة بيانات SQLite',
-              accept: {'application/vnd.sqlite3': ['.db']}
-            }],
-            multiple: false
-          });
-          const file = await dbFileHandle.getFile();
-          const arrayBuffer = await file.arrayBuffer();
-          dbData = new Uint8Array(arrayBuffer).buffer;
-        } catch (error) {
-          console.log('سيتم إنشاء قاعدة بيانات جديدة');
-        }
-      }
-      
-      // إنشاء أو تحميل قاعدة البيانات
-      db = new SQL.Database(dbData);
+      // إنشاء قاعدة بيانات جديدة
+      db = new SQL.Database();
       
       // إنشاء الجداول إذا لم تكن موجودة
       db.exec(`
@@ -427,10 +532,15 @@
           details TEXT NOT NULL,
           amount REAL NOT NULL
         );
+        
+        CREATE TABLE IF NOT EXISTS system (
+          key TEXT PRIMARY KEY,
+          value TEXT
+        );
       `);
       
-      // حفظ قاعدة البيانات
-      await saveDB();
+      // محاولة تحميل قاعدة البيانات من Gist
+      await loadDBFromGist();
       
       console.log('تم تهيئة قاعدة البيانات بنجاح');
       return true;
@@ -445,85 +555,12 @@
   async function saveDB() {
     if (!db) return;
     
+    // حفظ محلياً في localStorage كنسخة احتياطية
     const dbData = db.export();
+    localStorage.setItem('janna_bank_local_backup', JSON.stringify(Array.from(dbData)));
     
-    if (!isSafari && dbFileHandle) {
-      // حفظ في ملف (للمتصفحات الحديثة)
-      try {
-        const writable = await dbFileHandle.createWritable();
-        await writable.write(dbData);
-        await writable.close();
-        console.log('تم حفظ قاعدة البيانات في الملف');
-      } catch (error) {
-        console.error('خطأ في حفظ قاعدة البيانات في الملف:', error);
-        // في حالة الخطأ، نلجأ لحفظ في localStorage
-        localStorage.setItem(DB_NAME, JSON.stringify(Array.from(dbData)));
-      }
-    } else {
-      // حفظ في localStorage (للسفاري والمتصفحات القديمة)
-      localStorage.setItem(DB_NAME, JSON.stringify(Array.from(dbData)));
-      console.log('تم حفظ قاعدة البيانات في localStorage');
-    }
-  }
-
-  // تصدير قاعدة البيانات كملف
-  async function exportDB() {
-    if (!db) return;
-    
-    try {
-      const dbData = db.export();
-      const blob = new Blob([dbData], { type: 'application/vnd.sqlite3' });
-      const url = URL.createObjectURL(blob);
-      
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = DB_NAME;
-      a.click();
-      
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-      }, 100);
-      
-      dbMsg.classList.add('success');
-      dbMsg.textContent = 'تم تصدير قاعدة البيانات بنجاح';
-      setTimeout(() => { dbMsg.textContent = ''; dbMsg.classList.remove('success'); }, 3000);
-    } catch (error) {
-      console.error('خطأ في تصدير قاعدة البيانات:', error);
-      dbMsg.textContent = 'حدث خطأ أثناء تصدير قاعدة البيانات';
-    }
-  }
-
-  // استيراد قاعدة البيانات من ملف
-  async function importDB(file) {
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const SQL = await initSqlJs({
-        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
-      });
-      
-      // إنشاء قاعدة بيانات جديدة من الملف المستورد
-      const newDb = new SQL.Database(new Uint8Array(arrayBuffer));
-      
-      // التحقق من أن الملف يحتوي على الجداول المطلوبة
-      try {
-        newDb.exec('SELECT 1 FROM users LIMIT 1');
-        newDb.exec('SELECT 1 FROM transactions LIMIT 1');
-      } catch (e) {
-        throw new Error('ملف قاعدة البيانات غير صالح');
-      }
-      
-      // استبدال قاعدة البيانات الحالية
-      db = newDb;
-      
-      // حفظ قاعدة البيانات الجديدة
-      await saveDB();
-      
-      // إعادة تحميل الصفحة لتطبيق التغييرات
-      location.reload();
-    } catch (error) {
-      console.error('خطأ في استيراد قاعدة البيانات:', error);
-      dbMsg.textContent = 'ملف قاعدة البيانات غير صالح أو تالف';
-    }
+    // محاولة الحفظ على GitHub Gist
+    await saveDBToGist();
   }
 
   // جلب مستخدم حسب اسم المستخدم (غير حساس لحالة الأحرف)
@@ -907,19 +944,9 @@
     }
   });
 
-  // تصدير قاعدة البيانات
-  exportDbBtn.addEventListener('click', exportDB);
-
-  // استيراد قاعدة البيانات
-  importDbBtn.addEventListener('click', () => {
-    dbFileInput.click();
-  });
-
-  dbFileInput.addEventListener('change', async (e) => {
-    if (e.target.files.length > 0) {
-      await importDB(e.target.files[0]);
-      e.target.value = ''; // إعادة تعيين حقل الإدخال
-    }
+  // مزامنة قاعدة البيانات
+  syncDbBtn.addEventListener('click', async () => {
+    await saveDB();
   });
 
   // تحميل كشف حساب PDF باستخدام jsPDF
@@ -961,65 +988,88 @@
       doc.text("التاريخ", 20, startY);
       doc.text("نوع العملية", 65, startY);
       doc.text("التفاصيل", 110, startY);
-      doc.text("المبلغ (ر.س)", 170, startY);
-      startY += 6;
+      doc.text("المبلغ (ر.س)", 180, startY, null, null, "right");
+      startY += 8;
 
-      doc.setDrawColor(138,43,226);
-      doc.line(15, startY - 4, 195, startY - 4);
+      doc.setDrawColor(100, 100, 100);
+      doc.line(20, startY-2, 190, startY-2);
 
-      transactions.forEach(tx => {
-        if(startY > 270) {
-          doc.addPage();
-          startY = 20;
-        }
-        
-        const d = new Date(tx[2]); // date
-        doc.setTextColor("#ccc");
-        doc.text(d.toLocaleString('ar-EG'), 20, startY);
-        doc.text(tx[3], 65, startY); // type
-        doc.text(tx[4], 110, startY); // details
-        doc.text(tx[5].toFixed(2), 170, startY); // amount
-        startY += 8;
-      });
+      doc.setFontSize(10);
+      doc.setTextColor("#ddd");
 
+      if (transactions.length === 0) {
+        doc.text("لا توجد عمليات حتى الآن", 105, startY+10, null, null, "center");
+      } else {
+        transactions.forEach(tx => {
+          const d = new Date(tx[2]); // date
+          const dateStr = d.toLocaleString('ar-EG');
+          const type = tx[3]; // type
+          const details = tx[4]; // details
+          const amount = tx[5].toFixed(2); // amount
+
+          // التحقق من عدم تجاوز الصفحة
+          if (startY > 270) {
+            doc.addPage();
+            startY = 20;
+          }
+
+          doc.text(dateStr, 20, startY);
+          doc.text(type, 65, startY);
+          doc.text(details, 110, startY);
+          doc.text(amount, 180, startY, null, null, "right");
+          
+          startY += 8;
+          doc.setDrawColor(50, 50, 50);
+          doc.line(20, startY-2, 190, startY-2);
+        });
+      }
+
+      // حفظ الملف
       doc.save(`كشف_حساب_${currentUser[1]}.pdf`);
+      notify("مصرف جنى", "تم تحميل كشف الحساب بنجاح");
     } catch (error) {
       console.error('خطأ في إنشاء ملف PDF:', error);
       showInternalNotify('حدث خطأ أثناء إنشاء ملف PDF');
     }
   });
 
-  // عند تحميل الصفحة، تهيئة قاعدة البيانات ثم محاولة تسجيل الدخول تلقائياً إذا كان هناك مستخدم محفوظ
-  window.addEventListener('load', async () => {
-    // تهيئة قاعدة البيانات
-    const dbInitialized = await initDB();
+  // تهيئة التطبيق عند التحميل
+  window.addEventListener('DOMContentLoaded', async () => {
+    const success = await initDB();
+    if (!success) return;
     
-    if (!dbInitialized) {
-      showInternalNotify('تعذر تحميل قاعدة البيانات');
-      return;
-    }
-    
-    // جلب آخر مستخدم مسجل دخول (إذا كان هناك طريقة لتخزينه)
-    try {
-      const result = await db.exec('SELECT * FROM users ORDER BY id DESC LIMIT 1');
-      
-      if (result.length && result[0].values.length) {
-        currentUser = result[0].values[0];
-        showDashboard();
-      } else {
-        showLogin();
+    // محاولة تحميل نسخة احتياطية محلية إذا فشل الاتصال بالإنترنت
+    if (!navigator.onLine) {
+      const backup = localStorage.getItem('janna_bank_local_backup');
+      if (backup) {
+        try {
+          const SQL = await initSqlJs({
+            locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+          });
+          
+          const dbData = new Uint8Array(JSON.parse(backup));
+          db = new SQL.Database(dbData);
+          
+          showInternalNotify('تم تحميل نسخة احتياطية محلية');
+        } catch (error) {
+          console.error('خطأ في تحميل النسخة الاحتياطية:', error);
+          showInternalNotify('فشل في تحميل النسخة الاحتياطية');
+        }
       }
-    } catch (error) {
-      console.error('خطأ في جلب آخر مستخدم:', error);
-      showLogin();
     }
+    
+    // طلب إذن الإشعارات
+    if ("Notification" in window) {
+      Notification.requestPermission();
+    }
+    
+    showLogin();
   });
 
-  // طلب إذن إشعارات فوري (اختياري)
-  if("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
-    Notification.requestPermission();
-  }
-
+  // حفظ قاعدة البيانات عند إغلاق الصفحة
+  window.addEventListener('beforeunload', async () => {
+    await saveDB();
+  });
 })();
 </script>
 
