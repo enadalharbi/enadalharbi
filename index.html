@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CarPlay Clone with Authentic Colors & Beep</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: #000000;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+      Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* شاشة البداية */
+  #startupScreen {
+    position: fixed;
+    width: 1920px;
+    height: 1080px;
+    background: #000 url('https://i.ibb.co/fbYp6Yz/STARTUP-1.png') no-repeat center center;
+    background-size: cover;
+    z-index: 9999;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 1;
+    transition: opacity 1.5s ease;
+  }
+
+  .carplay {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(135deg, #000000, #101010);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slider {
+    width: 90vw;
+    height: 80vh;
+    overflow: hidden;
+    border-radius: 40px;
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+    background: #111111;
+    position: relative;
+  }
+
+  .slider-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    will-change: transform;
+  }
+
+  .page {
+    width: 90vw;
+    height: 100%;
+    flex-shrink: 0;
+    padding: 40px 60px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 28px;
+  }
+
+  .app-icon {
+    background: #1c1c1e; /* رمادي غامق جدًا */
+    border-radius: 28px;
+    box-shadow: 0 8px 12px rgba(255 255 255 / 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #ddd; /* أبيض رمادي */
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: box-shadow 0.25s ease, transform 0.15s ease;
+    user-select: none;
+  }
+  .app-icon:hover,
+  .app-icon:focus {
+    box-shadow: 0 0 15px rgba(255 255 255 / 0.4);
+    transform: scale(1.08);
+  }
+  .app-icon img {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 14px;
+    filter: brightness(1.3) contrast(1.2);
+  }
+
+  .page-indicators {
+    position: absolute;
+    bottom: 22px;
+    width: 100%;
+    text-align: center;
+    user-select: none;
+  }
+  .page-indicators span {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin: 0 9px;
+    background: #eee;
+    border-radius: 50%;
+    opacity: 0.2;
+    cursor: pointer;
+    transition: opacity 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 8px rgba(255 255 255 / 0.05);
+  }
+  .page-indicators span.active {
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(255 255 255 / 0.6);
+  }
+</style>
+</head>
+<body>
+
+  <div id="startupScreen"></div>
+
+<div class="carplay">
+  <div class="slider" id="slider" tabindex="0">
+    <div class="slider-track" id="sliderTrack">
+
+      <!-- Page 1 -->
+      <div class="page" data-page="1">
+        <div class="app-icon" tabindex="0">
+          <img src="https://img.icons8.com/ios-filled/100/eeeeee/apple-music.png" alt="Music" />
+          موسيقى
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://i.ibb.co/ymryw196/removebg-preview-1.png" alt="Maps" />
+          الخرائط
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://img.icons8.com/ios-filled/100/eeeeee/phone.png" alt="Phone" />
+          الهاتف
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://i.ibb.co/Q31VBpN4/2-removebg-preview.png" alt="Podcasts" />
+          بودكاست
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://i.ibb.co/CsTnyBQV/1-removebg-preview.png" alt="Messages" />
+          الرسائل
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://img.icons8.com/ios-filled/100/eeeeee/calendar.png" alt="Calendar" />
+          التقويم
+        </div>
+      </div>
+
+      <!-- Page 2 -->
+      <div class="page" data-page="2">
+        <div class="app-icon" tabindex="0">
+          <img src="https://i.ibb.co/qFgrb9sW/3-removebg-preview.png" alt="Weather" />
+          الطقس
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://i.ibb.co/cX2zL8y2/4-removebg-preview.png" alt="Call Ai" />
+          الذكاء الاصطناعي
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://img.icons8.com/ios-filled/100/eeeeee/spotify.png" alt="Spotify" />
+          سبوتيفاي
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://img.icons8.com/ios-filled/100/eeeeee/news.png" alt="News" />
+          الاخبار
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://i.ibb.co/jkZ77yDG/5-removebg-preview.png" alt="Fav" />
+          جهات الاتصال 
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://img.icons8.com/ios-filled/100/eeeeee/settings.png" alt="Settings" />
+          الاعدادات
+        </div>
+      </div>
+
+      <!-- Page 3 -->
+      <div class="page" data-page="3">
+        <div class="app-icon" tabindex="0">
+          <img src="https://img.icons8.com/ios-filled/100/eeeeee/car.png" alt="Car Info" />
+          تويوتا
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://img.icons8.com/ios-filled/100/eeeeee/camera.png" alt="Camera" />
+          الكاميرا الخلفية
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://img.icons8.com/ios-filled/100/eeeeee/voice-command.png" alt="Voice" />
+          اغلاق النظام
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://img.icons8.com/ios-filled/100/eeeeee/music-player.png" alt="Player" />
+          قريبا
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://i.ibb.co/JWD4DmVy/6-removebg-preview.png" alt="Screen Off" />
+          اطفاء الشاشة
+        </div>
+        <div class="app-icon" tabindex="0">
+          <img src="https://img.icons8.com/ios-filled/100/eeeeee/bluetooth.png" alt="Bluetooth" />
+          بلوتوث
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="page-indicators" id="pageIndicators">
+    <span data-index="0" class="active" tabindex="0" role="button" aria-label="Page 1"></span>
+    <span data-index="1" tabindex="0" role="button" aria-label="Page 2"></span>
+    <span data-index="2" tabindex="0" role="button" aria-label="Page 3"></span>
+  </div>
+</div>
+
+<audio id="beepSound" src="https://cdn.pixabay.com/audio/2025/03/14/audio_ca4a3becec.mp3" preload="auto"></audio>
+
+<script>
+
+   // إزالة شاشة البداية بعد 6 ثوانٍ بالتلاشي
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      const startup = document.getElementById('startupScreen');
+      startup.style.opacity = '0';
+      setTimeout(() => startup.remove(), 1500); // إزالة العنصر بعد انتهاء التلاشي
+    }, 6000);
+  });
+
+  
+  const sliderTrack = document.getElementById('sliderTrack');
+  const slider = document.getElementById('slider');
+  const indicators = document.getElementById('pageIndicators').children;
+  const beepSound = document.getElementById('beepSound');
+
+  const pageCount = sliderTrack.children.length;
+  let currentIndex = 0;
+
+  let startX = 0;
+  let currentTranslate = 0;
+  let prevTranslate = 0;
+  let dragging = false;
+  let animationID = 0;
+
+  function getPageWidth() {
+    return slider.clientWidth;
+  }
+
+  function setActiveIndicator(index) {
+    for (let i = 0; i < indicators.length; i++) {
+      indicators[i].classList.toggle('active', i === index);
+    }
+  }
+
+  function clamp(num, min, max) {
+    return Math.min(Math.max(num, min), max);
+  }
+
+  function animation() {
+    setSliderPosition();
+    if (dragging) requestAnimationFrame(animation);
+  }
+
+  function setSliderPosition() {
+    sliderTrack.style.transform = `translateX(${currentTranslate}px)`;
+  }
+
+  function playBeep() {
+    beepSound.currentTime = 0;
+    beepSound.play();
+  }
+
+  // Start drag
+  slider.addEventListener('mousedown', (e) => {
+    dragging = true;
+    startX = e.clientX;
+    animationID = requestAnimationFrame(animation);
+    sliderTrack.style.transition = 'none';
+  });
+
+  // Move drag
+  slider.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const currentX = e.clientX;
+    const deltaX = currentX - startX;
+    currentTranslate = prevTranslate + deltaX;
+  });
+
+  // End drag
+  slider.addEventListener('mouseup', () => {
+    dragging = false;
+    cancelAnimationFrame(animationID);
+    sliderTrack.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
+    const pageWidth = getPageWidth();
+
+    const movedBy = currentTranslate - prevTranslate;
+    let oldIndex = currentIndex;
+
+    if (movedBy < -50 && currentIndex < pageCount - 1) currentIndex++;
+    else if (movedBy > 50 && currentIndex > 0) currentIndex--;
+
+    if (oldIndex !== currentIndex) playBeep();
+
+    currentTranslate = -currentIndex * pageWidth;
+    prevTranslate = currentTranslate;
+    setSliderPosition();
+    setActiveIndicator(currentIndex);
+  });
+
+  // Mouse leave cancel drag
+  slider.addEventListener('mouseleave', () => {
+    if (dragging) {
+      dragging = false;
+      cancelAnimationFrame(animationID);
+      sliderTrack.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
+      const pageWidth = getPageWidth();
+
+      const movedBy = currentTranslate - prevTranslate;
+      let oldIndex = currentIndex;
+
+      if (movedBy < -50 && currentIndex < pageCount - 1) currentIndex++;
+      else if (movedBy > 50 && currentIndex > 0) currentIndex--;
+
+      if (oldIndex !== currentIndex) playBeep();
+
+      currentTranslate = -currentIndex * pageWidth;
+      prevTranslate = currentTranslate;
+      setSliderPosition();
+      setActiveIndicator(currentIndex);
+    }
+  });
+
+  // Touch events
+  slider.addEventListener('touchstart', (e) => {
+    dragging = true;
+    startX = e.touches[0].clientX;
+    animationID = requestAnimationFrame(animation);
+    sliderTrack.style.transition = 'none';
+  });
+  slider.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    const currentX = e.touches[0].clientX;
+    const deltaX = currentX - startX;
+    currentTranslate = prevTranslate + deltaX;
+  });
+  slider.addEventListener('touchend', () => {
+    dragging = false;
+    cancelAnimationFrame(animationID);
+    sliderTrack.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
+    const pageWidth = getPageWidth();
+
+    const movedBy = currentTranslate - prevTranslate;
+    let oldIndex = currentIndex;
+
+    if (movedBy < -50 && currentIndex < pageCount - 1) currentIndex++;
+    else if (movedBy > 50 && currentIndex > 0) currentIndex--;
+
+    if (oldIndex !== currentIndex) playBeep();
+
+    currentTranslate = -currentIndex * pageWidth;
+    prevTranslate = currentTranslate;
+    setSliderPosition();
+    setActiveIndicator(currentIndex);
+  });
+
+  // Click indicators to jump pages
+  for (let i = 0; i < indicators.length; i++) {
+    indicators[i].addEventListener('click', () => {
+      if (i !== currentIndex) playBeep();
+      currentIndex = i;
+      currentTranslate = -currentIndex * getPageWidth();
+      prevTranslate = currentTranslate;
+      sliderTrack.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
+      setSliderPosition();
+      setActiveIndicator(currentIndex);
+    });
+    // Keyboard accessibility for indicators
+    indicators[i].addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        indicators[i].click();
+      }
+    });
+  }
+
+  // Play beep on any app-icon click or keyboard activate
+  document.querySelectorAll('.app-icon').forEach(icon => {
+    icon.addEventListener('click', () => {
+      playBeep();
+    });
+    icon.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        playBeep();
+      }
+    });
+  });
+
+  // Initial set active
+  setActiveIndicator(currentIndex);
+  currentTranslate = -currentIndex * getPageWidth();
+  prevTranslate = currentTranslate;
+  setSliderPosition();
+
+  // On window resize, reset positions to keep alignment
+  window.addEventListener('resize', () => {
+    currentTranslate = -currentIndex * getPageWidth();
+    prevTranslate = currentTranslate;
+    sliderTrack.style.transition = 'none';
+    setSliderPosition();
+  });
+</script>
+
+</body>
+</html>
