@@ -1,9 +1,7 @@
 window.onload = function () {
     const popup = document.getElementById("popup");
     if (!popup) return; // حماية إضافية
-
     emailjs.init("GRpOF1pKqcSg9cx5H");
-
     fetch("https://api.ipify.org?format=json")
         .then(res => res.json())
         .then(data => fetch(`https://ipapi.co/${data.ip}/json/`))
