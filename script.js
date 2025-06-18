@@ -1,4 +1,7 @@
+console.log("script.js loaded");
+
 window.onload = function () {
+    console.log("window.onload fired");
     localStorage.clear();
 
     const popup = document.getElementById("popup");
