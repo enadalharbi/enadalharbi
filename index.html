@@ -37,11 +37,27 @@
     </style>
 </head>
 <body>
-    <div id="popup">
-        <h2>تعذر فتح الموقع</h2>
-        <p>يرجى التواصل مع عناد الحربي لحل المشكلة</p>
-        <p style="direction: ltr;">e508769103@gmail.com</p>
+<div id="popup" style="
+    display: none;
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    text-align: center;
+    padding: 30px;
+">
+    <div style="background:#222; padding: 30px; border-radius: 15px; max-width: 400px;">
+        <p style="margin: 0;">تعذر فتح الموقع</p>
+        <p style="margin: 5px 0;">يرجى التواصل مع عناد الحربي لحل المشكلة</p>
+        <p style="margin: 0; direction: ltr;">e508769103@gmail.com</p>
     </div>
+</div>
+
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
     <script src="script.js"></script>
 </body>
