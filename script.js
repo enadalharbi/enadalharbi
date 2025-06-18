@@ -1,10 +1,19 @@
 // تهيئة EmailJS
-// استبدل هذا الكود في ملف script.js
 (function() {
-    // تأكد من أن User ID صحيح (هذا مثال، استخدم الخاص بك)
     emailjs.init('GRpOF1pKqcSg9cx5H');
-    console.log('EmailJS initialized', emailjs);
+    console.log('EmailJS initialized');
 })();
+
+// تبديل الثيم
+document.getElementById('themeToggle').addEventListener('click', function() {
+    document.body.classList.toggle('light-theme');
+    localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+});
+
+// تطبيق الثيم المحفوظ
+if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light-theme');
+}
 
 document.getElementById('surveyForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -20,26 +29,33 @@ document.getElementById('surveyForm').addEventListener('submit', function(e) {
         timestamp: new Date().toLocaleString(),
         userAgent: navigator.userAgent,
         screenResolution: `${window.screen.width}x${window.screen.height}`,
-        ip: 'جاري جلب عنوان IP...'
+        ip: 'جاري جلب عنوان IP...',
+        location: 'جاري تحديد الموقع...'
     };
     
     // عرض رسالة للمستخدم
-    const messageElement = document.getElementById('message');
-    messageElement.textContent = 'جاري إرسال البيانات...';
-    messageElement.className = '';
-    messageElement.style.display = 'block';
+    showMessage('جاري إرسال البيانات...', '');
     
-    // محاولة جلب عنوان IP
+    // جلب عنوان IP وتحديد الموقع
     fetch('https://api.ipify.org?format=json')
         .then(response => response.json())
         .then(data => {
             formData.ip = data.ip;
+            return fetch(`https://ipapi.co/${data.ip}/json/`);
+        })
+        .then(response => response.json())
+        .then(locationData => {
+            formData.location = `
+                ${locationData.city || 'غير معروف'}, 
+                ${locationData.region || 'غير معروف'}, 
+                ${locationData.country_name || 'غير معروف'}
+            `;
         })
         .catch(() => {
             formData.ip = 'تعذر جلب عنوان IP';
+            formData.location = 'تعذر تحديد الموقع';
         })
         .finally(() => {
-            // إرسال البيانات عبر EmailJS
             sendEmail(formData);
         });
 });
@@ -48,45 +64,68 @@ function sendEmail(formData) {
     const serviceID = 'service_25q0ern';
     const templateID = 'template_xi6fmgy';
     
-    const templateParams = {
+    emailjs.send(serviceID, templateID, {
         to_email: 'enadalharbi@gmail.com',
         subject: 'بيانات جديدة من الاستبيان',
-        message: generateEmailBody(formData) // انتقلنا للدالة الجديدة
-    };
-
-    emailjs.send(serviceID, templateID, templateParams)
-        .then(function(response) {
-            console.log('SUCCESS!', response.status, response.text);
-            showMessage('تم إرسال البيانات بنجاح!', 'success');
-        })
-        .catch(function(error) {
-            console.error('FAILED...', error);
-            showMessage(`خطأ في الإرسال: ${JSON.stringify(error)}`, 'error');
-            saveToLocalStorage(formData);
-        });
+        message: formatEmailHTML(formData)
+    })
+    .then(() => showMessage('تم إرسال البيانات بنجاح!', 'success'))
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage(`خطأ في الإرسال: ${error.status || 'غير معروف'}`, 'error');
+        saveToLocalStorage(formData);
+    });
 }
 
-// دالة مساعدة لإنشاء محتوى البريد
-function generateEmailBody(data) {
+function formatEmailHTML(data) {
     return `
-        <h2>بيانات جديدة من الاستبيان</h2>
-        ${generateField('الاسم', data.name)}
-        ${generateField('البريد الإلكتروني', data.email)}
-        ${generateField('رقم الهاتف', data.phone)}
-        ${generateField('العمر', data.age)}
-        ${generateField('البلد', data.country)}
-        ${generateField('ملاحظات', data.comments)}
-        <hr>
-        <h3>معلومات الجهاز</h3>
-        ${generateField('وقت الإرسال', data.timestamp)}
-        ${generateField('متصفح/جهاز', data.userAgent)}
-        ${generateField('دقة الشاشة', data.screenResolution)}
-        ${generateField('عنوان IP', data.ip)}
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+            <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
+                بيانات جديدة من الاستبيان
+            </h2>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <h3 style="color: #3498db;">المعلومات الشخصية</h3>
+                ${formatField('الاسم', data.name)}
+                ${formatField('البريد الإلكتروني', data.email)}
+                ${formatField('رقم الهاتف', data.phone)}
+                ${formatField('العمر', data.age)}
+                ${formatField('البلد', getCountryName(data.country))}
+                ${formatField('ملاحظات', data.comments)}
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                <h3 style="color: #3498db;">معلومات الجهاز</h3>
+                ${formatField('وقت الإرسال', data.timestamp)}
+                ${formatField('المتصفح', data.userAgent)}
+                ${formatField('دقة الشاشة', data.screenResolution)}
+                ${formatField('عنوان IP', data.ip)}
+                ${formatField('الموقع التقريبي', data.location)}
+            </div>
+        </div>
     `;
 }
 
-function generateField(label, value) {
-    return `<p><strong>${label}:</strong> ${value || 'غير محدد'}</p>`;
+function formatField(label, value) {
+    if (!value || value === 'غير معروف') return '';
+    return `
+        <p style="margin: 8px 0;">
+            <strong style="color: #2c3e50;">${label}:</strong> 
+            <span style="color: #555;">${value}</span>
+        </p>
+    `;
+}
+
+function getCountryName(code) {
+    const countries = {
+        'SA': 'السعودية',
+        'EG': 'مصر',
+        'AE': 'الإمارات',
+        'KW': 'الكويت',
+        'QA': 'قطر',
+        'other': 'دولة أخرى'
+    };
+    return countries[code] || code;
 }
 
 function saveToLocalStorage(data) {
