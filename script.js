@@ -1,6 +1,9 @@
 // تهيئة EmailJS
+// استبدل هذا الكود في ملف script.js
 (function() {
-    emailjs.init('GRpOF1pKqcSg9cx5H'); // استخدم User ID الخاص بك
+    // تأكد من أن User ID صحيح (هذا مثال، استخدم الخاص بك)
+    emailjs.init('GRpOF1pKqcSg9cx5H');
+    console.log('EmailJS initialized', emailjs);
 })();
 
 document.getElementById('surveyForm').addEventListener('submit', function(e) {
@@ -45,35 +48,45 @@ function sendEmail(formData) {
     const serviceID = 'service_25q0ern';
     const templateID = 'template_xi6fmgy';
     
-    // إعداد معاملات القالب
     const templateParams = {
         to_email: 'enadalharbi@gmail.com',
         subject: 'بيانات جديدة من الاستبيان',
-        message: `
-            <h2>بيانات جديدة من الاستبيان</h2>
-            <p><strong>الاسم:</strong> ${formData.name}</p>
-            <p><strong>البريد الإلكتروني:</strong> ${formData.email}</p>
-            <p><strong>رقم الهاتف:</strong> ${formData.phone}</p>
-            <p><strong>العمر:</strong> ${formData.age}</p>
-            <p><strong>البلد:</strong> ${formData.country}</p>
-            <p><strong>ملاحظات:</strong> ${formData.comments}</p>
-            <hr>
-            <h3>معلومات الجهاز</h3>
-            <p><strong>وقت الإرسال:</strong> ${formData.timestamp}</p>
-            <p><strong>متصفح/جهاز:</strong> ${formData.userAgent}</p>
-            <p><strong>دقة الشاشة:</strong> ${formData.screenResolution}</p>
-            <p><strong>عنوان IP:</strong> ${formData.ip}</p>
-        `
+        message: generateEmailBody(formData) // انتقلنا للدالة الجديدة
     };
-    
-    // إرسال البريد
+
     emailjs.send(serviceID, templateID, templateParams)
         .then(function(response) {
+            console.log('SUCCESS!', response.status, response.text);
             showMessage('تم إرسال البيانات بنجاح!', 'success');
-        }, function(error) {
-            showMessage(`خطأ في الإرسال: ${error}`, 'error');
+        })
+        .catch(function(error) {
+            console.error('FAILED...', error);
+            showMessage(`خطأ في الإرسال: ${JSON.stringify(error)}`, 'error');
             saveToLocalStorage(formData);
         });
+}
+
+// دالة مساعدة لإنشاء محتوى البريد
+function generateEmailBody(data) {
+    return `
+        <h2>بيانات جديدة من الاستبيان</h2>
+        ${generateField('الاسم', data.name)}
+        ${generateField('البريد الإلكتروني', data.email)}
+        ${generateField('رقم الهاتف', data.phone)}
+        ${generateField('العمر', data.age)}
+        ${generateField('البلد', data.country)}
+        ${generateField('ملاحظات', data.comments)}
+        <hr>
+        <h3>معلومات الجهاز</h3>
+        ${generateField('وقت الإرسال', data.timestamp)}
+        ${generateField('متصفح/جهاز', data.userAgent)}
+        ${generateField('دقة الشاشة', data.screenResolution)}
+        ${generateField('عنوان IP', data.ip)}
+    `;
+}
+
+function generateField(label, value) {
+    return `<p><strong>${label}:</strong> ${value || 'غير محدد'}</p>`;
 }
 
 function saveToLocalStorage(data) {
