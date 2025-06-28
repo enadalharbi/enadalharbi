@@ -1,5 +1,0 @@
-<?php
-// run this once to create the database
-$db = new SQLite3('users.db');
-$db->exec("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, code TEXT)");
-echo "DB created.";
